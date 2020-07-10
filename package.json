@@ -1,0 +1,35 @@
+{
+  "name": "grocer",
+  "version": "0.0.1",
+  "description": "A game",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack --config webpack.prod.js; cp -r assets dist/; cp favicon.png dist/; cp manifest.json dist/",
+    "start": "webpack-dev-server --config webpack.base.js --open",
+    "deploy": "gh-pages -d dist"
+  },
+  "author": "Daniel Whiffing <danielwhiffing@gmail.com> (http://www.infinite-ramble.com)",
+  "license": "MIT",
+  "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
+  "homepage": "https://github.com/dwhiffing/grocer",
+  "devDependencies": {
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "file-loader": "^4.2.0",
+    "gh-pages": "^2.2.0",
+    "html-webpack-plugin": "^3.2.0",
+    "raw-loader": "^3.1.0",
+    "terser-webpack-plugin": "^2.2.1",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0",
+    "webpack-merge": "^4.2.2"
+  },
+  "dependencies": {
+    "behavior-system": "^3.0.5",
+    "lodash": "^4.17.15",
+    "phaser": "^3.22.0"
+  }
+}
