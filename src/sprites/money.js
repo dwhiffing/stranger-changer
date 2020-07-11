@@ -32,7 +32,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       this.setFrame(3)
     }
 
-    scene.add.existing(this)
+    scene.monies.add(this, true)
     this.scene = scene
     this.value = value
     this.originX = 0.5
