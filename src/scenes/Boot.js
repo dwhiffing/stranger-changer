@@ -24,6 +24,14 @@ export default class extends Phaser.Scene {
 
     this.load.audio('bounce', 'assets/audio/bounce.mp3')
     this.load.image('playButton', 'assets/images/button.png')
+    this.load.spritesheet('cash', 'assets/images/cash.png', {
+      frameWidth: 256,
+      frameHeight: 512,
+    })
+    this.load.spritesheet('change', 'assets/images/change.png', {
+      frameWidth: 128,
+      frameHeight: 128,
+    })
 
     this.load.on('complete', () => {
       WebFont.load({
@@ -32,7 +40,7 @@ export default class extends Phaser.Scene {
         },
         active: () => {
           progress.destroy()
-          this.scene.start('Menu')
+          this.scene.start('Game')
         },
       })
     })
