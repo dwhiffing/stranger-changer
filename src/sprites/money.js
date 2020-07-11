@@ -32,50 +32,95 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       this.setFrame(3)
     }
 
-    scene.monies.add(this, true)
+    scene.moneyGroup.add(this, true)
+    this.throw = this.throw.bind(this)
+    this.breakdown = this.breakdown.bind(this)
+    this.onDrag = this.onDrag.bind(this)
+    this.onClick = this.onClick.bind(this)
+
     this.scene = scene
     this.value = value
-    this.originX = 0.5
-    this.originY = 0.5
-
+    this.originX = 1
+    this.originY = 1
+    this.setDrag(600, 600)
+    this.setScale(0.75)
+    this.setAngularDrag(100)
     this.setInteractive()
+    this.setCollideWorldBounds(true, 0.4, 0.4)
+    this.moveTimer = 50
+    this.lastX = this.x
+    this.lastY = this.y
 
     scene.input.setDraggable(this)
 
-    this.on('pointerdown', () => {
-      if (this.wasClicked && this.value > 1) {
-        const breakdown = AMOUNTS[VALUES.indexOf(this.value)]
-        breakdown.forEach((value) => {
-          new Money(
-            this.scene,
-            this.x + Phaser.Math.RND.between(-60, 60),
-            this.y + Phaser.Math.RND.between(-60, 60),
-            value,
-          )
-        })
-        this.destroy()
+    this.on('pointermove', () => {
+      if (this.isHeld) {
+        this.onDrag()
       }
-
-      this.wasClicked = true
-
-      this.scene &&
-        this.scene.time.addEvent({
-          delay: 300,
-          callback: () => {
-            this.wasClicked = false
-          },
-        })
     })
 
-    this.on('pointerover', () => {
-      this.setTint(0x44ff44)
-      this.setDepth(1)
+    this.on('pointerup', () => {
+      this.throw()
     })
 
-    this.on('pointerout', () => {
-      this.setDepth(0)
-      this.clearTint()
+    this.on('pointerdown', this.onClick)
+    this.on('pointerover', () => this.setTint(0x44ff44))
+    this.on('pointerout', () => this.clearTint())
+  }
+
+  breakdown() {
+    const bills = AMOUNTS[VALUES.indexOf(this.value)]
+    bills.forEach((value, index, arr) => {
+      const num = arr.length
+      const money = new Money(this.scene, this.x, this.y, value)
+      const veloX = (index - num * 0.5) * 100
+      const veloY = (index - num * 0.5) * 100
+      money.setVelocity(veloX, veloY)
+      money.setAcceleration(0, 0)
+      money.setAngularVelocity((index - num * 0.5) * 30)
     })
+    this.destroy()
+  }
+
+  throw() {
+    const { lastX, lastY, x, y } = this
+    this.isHeld = false
+    const angle = Phaser.Math.Angle.Between(lastX, lastY, x, y)
+    const dist = Phaser.Math.Distance.Between(lastX, lastY, x, y)
+    this.setAngularVelocity(dist / 10)
+    this.scene.physics.velocityFromRotation(angle, dist * 3, this.body.velocity)
+  }
+
+  onClick() {
+    if (this.wasClicked && this.value > 1) {
+      this.breakdown()
+    }
+
+    this.wasClicked = true
+    this.isHeld = true
+
+    this.scene &&
+      this.scene.time.addEvent({
+        delay: 300,
+        callback: () => {
+          this.wasClicked = false
+        },
+      })
+  }
+
+  onDrag() {
+    if (this.moveTimer-- === 0) {
+      this.lastX = this.x
+      this.lastY = this.y
+      this.moveTimer = 50
+    }
+    if (this.angle < -3) {
+      this.angle += 0.8
+    }
+
+    if (this.angle > 2) {
+      this.angle -= 0.8
+    }
   }
 }
 

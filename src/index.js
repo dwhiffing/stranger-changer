@@ -7,13 +7,13 @@ var config = {
   height: 1920,
   backgroundColor: '#166273',
   parent: 'phaser-example',
-  // physics: {
-  //   default: 'matter',
-  //   matter: {
-  //     // debug: true,
-  //     gravity: { y: GRAVITY },
-  //   },
-  // },
+  physics: {
+    default: 'arcade',
+    arcade: {
+      // debug: true,
+      gravity: { y: 0 },
+    },
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
