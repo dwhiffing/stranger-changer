@@ -20,11 +20,14 @@ export default class extends Phaser.Scene {
     var graphics = this.add.graphics()
     graphics.lineStyle(4, 0xffffff, 1)
     graphics.strokeLineShape(
+      new Phaser.Geom.Line(0, this.height / 3, this.width, this.height / 3),
+    )
+    graphics.strokeLineShape(
       new Phaser.Geom.Line(
         0,
-        this.height / 2 - 150,
+        (this.height / 3) * 2,
         this.width,
-        this.height / 2 - 150,
+        (this.height / 3) * 2,
       ),
     )
 
@@ -53,11 +56,19 @@ export default class extends Phaser.Scene {
       .setInteractive()
       .on('pointerdown', () => {
         const presented = this.moneyGroup.getPresented()
-        if (presented.value === this.targetValue) {
+        const customer = this.moneyGroup.getCustomer()
+        if (presented.value === customer.value - this.targetValue) {
           presented.sprites.forEach((p) => p.destroy())
           this.productGroup.createProducts()
           this.targetValue = this.productGroup.getTotalValue()
-          // this.targetText.text = (this.targetValue / 100).toFixed(2)
+          customer.sprites.forEach((s) => {
+            s.makeDraggable()
+            this.tweens.add({
+              targets: [s],
+              y: this.height * 0.66,
+              duration: 500,
+            })
+          })
         }
       })
   }

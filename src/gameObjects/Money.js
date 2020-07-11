@@ -1,10 +1,17 @@
 import { DRAGGABLE } from '../behaviors/draggable'
-
+const defaultProps = {
+  y: 200,
+  angle: 2,
+  draggable: true,
+  instant: false,
+  delay: 0,
+}
 class Money extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y, value) {
+  constructor(scene, x, y, value, props = {}) {
     let sprite = value >= 100 ? 'cash' : 'change'
+    props = { ...defaultProps, ...props }
 
-    super(scene, x, y, sprite)
+    super(scene, x, props.instant ? y : props.y, sprite)
 
     if (value === 2000 || value === 25) {
       this.setFrame(0)
@@ -24,6 +31,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
 
     scene.moneyGroup.add(this, true)
     this.breakdown = this.breakdown.bind(this)
+    this.makeDraggable = this.makeDraggable.bind(this)
     this.onClick = this.onClick.bind(this)
 
     this.scene = scene
@@ -32,12 +40,26 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.setDrag(1200, 1200)
     this.setScale(0.75)
     this.setAngularDrag(100)
-    this.setCollideWorldBounds(true, 0.2, 0.2)
+    if (!props.instant) {
+      this.scene.tweens.add({
+        targets: [this],
+        x,
+        y: y + Math.random() * 100,
+        angle: Phaser.Math.RND.between(-props.angle, props.angle),
+        duration: 500,
+        delay: props.delay,
+        ease: 'Power2',
+        onComplete: () => {
+          this.setCollideWorldBounds(true, 0.2, 0.2)
+        },
+      })
+    }
 
     this.scene.behavior.enable(this)
-    this.behaviors.set('draggable', DRAGGABLE)
+    if (props.draggable) {
+      this.makeDraggable()
+    }
 
-    this.on('pointerdown', this.onClick)
     this.on('pointerover', () => this.setTint(0x44ff44))
     this.on('pointerout', () => this.clearTint())
     this.setDepth(value >= 100 ? 0 : 1)
@@ -47,7 +69,9 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     const bills = AMOUNTS[VALUES.indexOf(this.value)]
     bills.forEach((value, index, arr) => {
       const num = arr.length
-      const money = new Money(this.scene, this.x, this.y, value)
+      const money = new Money(this.scene, this.x, this.y, value, {
+        instant: true,
+      })
       const veloX = (index - num * 0.5) * 100
       const veloY = (index - num * 0.5) * 100
       money.setVelocity(veloX, veloY)
@@ -73,6 +97,12 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       })
   }
 
+  makeDraggable() {
+    this.draggable = true
+    this.behaviors.set('draggable', DRAGGABLE)
+    this.on('pointerdown', this.onClick)
+  }
+
   destroy(instant = false) {
     if (instant) {
       super.destroy()
@@ -95,8 +125,8 @@ class Money extends Phaser.Physics.Arcade.Sprite {
 
 export default Money
 
-const VALUES = [2000, 1000, 500, 100, 25, 10, 5, 1]
-const AMOUNTS = [
+export const VALUES = [2000, 1000, 500, 100, 25, 10, 5, 1]
+export const AMOUNTS = [
   [1000, 1000],
   [500, 500],
   [100, 100, 100, 100, 100],

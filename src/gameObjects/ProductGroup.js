@@ -1,4 +1,5 @@
 import Product from './Product'
+import Money, { VALUES } from './Money'
 export class ProductGroup extends Phaser.Physics.Arcade.Group {
   constructor(scene) {
     super(scene.physics.world, scene)
@@ -16,15 +17,28 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
       new Product(
         this.scene,
         143 + 265 * i,
-        300,
+        200,
         Math.floor(1 + Math.random() * 3) * 100,
         i,
       )
     }
+    const total = this.getTotalValue()
+    new Money(
+      this.scene,
+      this.scene.width / 2,
+      480,
+      [...VALUES].reverse().find((v) => v >= total),
+      {
+        y: -200,
+        angle: 90,
+        draggable: false,
+        delay: 1000,
+      },
+    )
   }
 
   getTotalValue() {
-    return this.getChildren()
+    return [...this.getChildren()]
       .filter((c) => c.active)
       .reduce((sum, child) => sum + child.value, 0)
   }
