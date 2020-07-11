@@ -16,6 +16,7 @@ export default class extends Phaser.Scene {
 
   create() {
     // draw dividing line
+    this.behavior = this.plugins.get('BehaviorPlugin')
     var graphics = this.add.graphics()
     graphics.lineStyle(4, 0xffffff, 1)
     graphics.strokeLineShape(
@@ -47,7 +48,7 @@ export default class extends Phaser.Scene {
       .setShadow(2, 2, '#333333', 2, false, true)
 
     this.add
-      .image(this.width / 2, this.height - 50, 'playButton')
+      .image(this.width / 2, this.height - 100, 'submit')
       .setScale(1)
       .setInteractive()
       .on('pointerdown', () => {
@@ -64,6 +65,8 @@ export default class extends Phaser.Scene {
   start() {}
 
   update() {
+    this.behavior.preUpdate()
+    this.behavior.update()
     this.totalText.text = this.moneyGroup.getPresented().value / 100
   }
 }

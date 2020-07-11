@@ -1,3 +1,5 @@
+import { DRAGGABLE } from '../behaviors/draggable'
+
 class Money extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, value) {
     let sprite = value >= 100 ? 'cash' : 'change'
@@ -21,35 +23,19 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     }
 
     scene.moneyGroup.add(this, true)
-    this.throw = this.throw.bind(this)
     this.breakdown = this.breakdown.bind(this)
-    this.onDrag = this.onDrag.bind(this)
     this.onClick = this.onClick.bind(this)
 
     this.scene = scene
     this.value = value
-    this.originX = 1
-    this.originY = 1
+    this.setOrigin(0.5)
     this.setDrag(1200, 1200)
     this.setScale(0.75)
     this.setAngularDrag(100)
-    this.setInteractive()
-    this.setCollideWorldBounds(true, 0.4, 0.4)
-    this.moveTimer = 50
-    this.lastX = this.x
-    this.lastY = this.y
+    this.setCollideWorldBounds(true, 0.2, 0.2)
 
-    scene.input.setDraggable(this)
-
-    this.on('pointermove', () => {
-      if (this.isHeld) {
-        this.onDrag()
-      }
-    })
-
-    this.on('pointerup', () => {
-      this.throw()
-    })
+    this.scene.behavior.enable(this)
+    this.behaviors.set('draggable', DRAGGABLE)
 
     this.on('pointerdown', this.onClick)
     this.on('pointerover', () => this.setTint(0x44ff44))
@@ -71,22 +57,12 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.destroy(true)
   }
 
-  throw() {
-    const { lastX, lastY, x, y } = this
-    this.isHeld = false
-    const angle = Phaser.Math.Angle.Between(lastX, lastY, x, y)
-    const dist = Phaser.Math.Distance.Between(lastX, lastY, x, y)
-    this.setAngularVelocity(dist / 10)
-    this.scene.physics.velocityFromRotation(angle, dist * 3, this.body.velocity)
-  }
-
   onClick() {
     if (this.wasClicked && this.value > 1) {
       this.breakdown()
     }
 
     this.wasClicked = true
-    this.isHeld = true
 
     this.scene &&
       this.scene.time.addEvent({
@@ -95,21 +71,6 @@ class Money extends Phaser.Physics.Arcade.Sprite {
           this.wasClicked = false
         },
       })
-  }
-
-  onDrag() {
-    if (this.moveTimer-- === 0) {
-      this.lastX = this.x
-      this.lastY = this.y
-      this.moveTimer = 50
-    }
-    if (this.angle < -3) {
-      this.angle += 0.8
-    }
-
-    if (this.angle > 2) {
-      this.angle -= 0.8
-    }
   }
 
   destroy(instant = false) {

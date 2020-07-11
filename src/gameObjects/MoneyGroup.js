@@ -10,7 +10,7 @@ export class MoneyGroup extends Phaser.Physics.Arcade.Group {
       new Money(
         this.scene,
         143 + 265 * i,
-        this.scene.height - 300,
+        this.scene.height - 400,
         Phaser.Math.RND.pick([2000, 1000, 500]),
       )
     }

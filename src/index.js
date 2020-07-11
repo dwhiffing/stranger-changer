@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import * as scenes from './scenes'
+import BehaviorPlugin from './behavior'
 
 var config = {
   type: Phaser.AUTO,
@@ -7,6 +8,9 @@ var config = {
   height: 1920,
   backgroundColor: '#166273',
   parent: 'phaser-example',
+  plugins: {
+    global: [{ key: 'BehaviorPlugin', plugin: BehaviorPlugin, start: true }],
+  },
   physics: {
     default: 'arcade',
     arcade: {
