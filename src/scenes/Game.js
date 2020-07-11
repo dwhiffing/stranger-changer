@@ -1,4 +1,4 @@
-import Money from '../sprites/Money'
+import Money, { VALUES } from '../sprites/Money'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -13,11 +13,11 @@ export default class extends Phaser.Scene {
   create() {
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
-        const money = new Money(
+        new Money(
           this,
           143 + 265 * i,
           143 + 525 * j,
-          Phaser.Math.RND.pick([2000, 1000, 500, 100, 25, 10, 5, 1]),
+          Phaser.Math.RND.pick(VALUES),
         )
       }
     }
