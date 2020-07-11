@@ -45,23 +45,25 @@ export default class extends Phaser.Scene {
     this.totalText = this.add
       .text(this.width - 200, 20, 0, TEXT_CONFIG)
       .setShadow(2, 2, '#333333', 2, false, true)
+
+    this.add
+      .image(this.width / 2, this.height - 50, 'playButton')
+      .setScale(1)
+      .setInteractive()
+      .on('pointerdown', () => {
+        const presented = this.moneyGroup.getPresented()
+        if (presented.value === this.targetValue) {
+          presented.sprites.forEach((p) => p.destroy())
+          this.productGroup.createProducts()
+          this.targetValue = this.productGroup.getTotalValue()
+          // this.targetText.text = (this.targetValue / 100).toFixed(2)
+        }
+      })
   }
 
   start() {}
 
   update() {
-    const presentedMoney = this.moneyGroup
-      .getChildren()
-      .filter((t) => t.y < this.height / 2)
-    const valuePresented = presentedMoney.reduce((sum, t) => sum + t.value, 0)
-    this.totalText.text = valuePresented / 100
-
-    // if value is equal, clear money and get new products
-    if (valuePresented === this.targetValue) {
-      presentedMoney.forEach((p) => p.destroy())
-      this.productGroup.createProducts()
-      this.targetValue = this.productGroup.getTotalValue()
-      // this.targetText.text = (this.targetValue / 100).toFixed(2)
-    }
+    this.totalText.text = this.moneyGroup.getPresented().value / 100
   }
 }

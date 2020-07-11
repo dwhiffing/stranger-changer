@@ -11,12 +11,14 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
       p.destroy()
       p.value = 0
     })
+
     for (let i = 0; i < 4; i++) {
       new Product(
         this.scene,
         143 + 265 * i,
         300,
-        Math.floor(1 + Math.random() * 2) * 100,
+        Math.floor(1 + Math.random() * 3) * 100,
+        i,
       )
     }
   }

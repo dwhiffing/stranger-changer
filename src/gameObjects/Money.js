@@ -68,7 +68,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       money.setAcceleration(0, 0)
       money.setAngularVelocity((index - num * 0.5) * 30)
     })
-    this.destroy()
+    this.destroy(true)
   }
 
   throw() {
@@ -110,6 +110,25 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     if (this.angle > 2) {
       this.angle -= 0.8
     }
+  }
+
+  destroy(instant = false) {
+    if (instant) {
+      super.destroy()
+      return
+    }
+    this.value = 0
+    this.setCollideWorldBounds(false)
+    this.scene.tweens.add({
+      targets: [this],
+      y: -600,
+      duration: 1000,
+      ease: 'Power2',
+      delay: this.index * 100,
+      onComplete: () => {
+        super.destroy()
+      },
+    })
   }
 }
 

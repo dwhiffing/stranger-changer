@@ -15,4 +15,12 @@ export class MoneyGroup extends Phaser.Physics.Arcade.Group {
       )
     }
   }
+
+  getPresented() {
+    const presentedMoney = this.scene.moneyGroup
+      .getChildren()
+      .filter((t) => t.y < this.scene.height / 2)
+    const valuePresented = presentedMoney.reduce((sum, t) => sum + t.value, 0)
+    return { sprites: presentedMoney, value: valuePresented }
+  }
 }
