@@ -1,7 +1,9 @@
 import { DRAGGABLE } from '../behaviors/draggable'
 const defaultProps = {
+  x: 200,
   y: 200,
   angle: 2,
+  alpha: 1,
   draggable: true,
   instant: false,
   delay: 0,
@@ -11,7 +13,12 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     let sprite = value >= 100 ? 'cash' : 'change'
     props = { ...defaultProps, ...props }
 
-    super(scene, x, props.instant ? y : props.y, sprite)
+    super(
+      scene,
+      props.instant ? x : props.x,
+      props.instant ? y : props.y,
+      sprite,
+    )
 
     if (value === 2000 || value === 25) {
       this.setFrame(0)
@@ -38,12 +45,13 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.value = value
     this.setOrigin(0.5)
     this.setDrag(1200, 1200)
-    this.setScale(0.75)
+    this.setScale(0.65)
     this.setAngularDrag(100)
     if (!props.instant) {
       this.scene.tweens.add({
         targets: [this],
         x,
+        alpha: props.alpha,
         y: y + Math.random() * 100,
         angle: Phaser.Math.RND.between(-props.angle, props.angle),
         duration: 500,
@@ -53,6 +61,8 @@ class Money extends Phaser.Physics.Arcade.Sprite {
           this.setCollideWorldBounds(true, 0.2, 0.2)
         },
       })
+    } else {
+      this.setCollideWorldBounds(true, 0.2, 0.2)
     }
 
     this.scene.behavior.enable(this)
@@ -101,6 +111,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.draggable = true
     this.behaviors.set('draggable', DRAGGABLE)
     this.on('pointerdown', this.onClick)
+    this.setTint(0xffffff)
   }
 
   destroy(instant = false) {

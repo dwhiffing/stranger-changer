@@ -16,25 +16,27 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
     for (let i = 0; i < 4; i++) {
       new Product(
         this.scene,
-        143 + 265 * i,
-        200,
+        120 + 180 * i,
+        730,
         Math.floor(1 + Math.random() * 3) * 100,
         i,
       )
     }
     const total = this.getTotalValue()
-    new Money(
+    const money = new Money(
       this.scene,
-      this.scene.width / 2,
-      480,
+      this.scene.width - 200,
+      770,
       [...VALUES].reverse().find((v) => v >= total),
       {
-        y: -200,
-        angle: 90,
+        x: -200,
+        y: 500,
+        angle: 5,
         draggable: false,
         delay: 1000,
       },
     )
+    money.setTint(0xff0000)
   }
 
   getTotalValue() {

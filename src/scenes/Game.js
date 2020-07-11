@@ -1,6 +1,7 @@
 import { TEXT_CONFIG } from '..'
 import { MoneyGroup } from '../gameObjects/MoneyGroup'
 import { ProductGroup } from '../gameObjects/ProductGroup'
+import Customer from '../gameObjects/Customer'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -15,19 +16,18 @@ export default class extends Phaser.Scene {
   }
 
   create() {
+    const table = this.add.image(20, 1405, 'table')
+    table.setScale(2.2, 1.5)
     // draw dividing line
     this.behavior = this.plugins.get('BehaviorPlugin')
     var graphics = this.add.graphics()
     graphics.lineStyle(4, 0xffffff, 1)
     graphics.strokeLineShape(
-      new Phaser.Geom.Line(0, this.height / 3, this.width, this.height / 3),
-    )
-    graphics.strokeLineShape(
       new Phaser.Geom.Line(
         0,
-        (this.height / 3) * 2,
+        this.height * 0.65,
         this.width,
-        (this.height / 3) * 2,
+        this.height * 0.65,
       ),
     )
 
@@ -42,6 +42,10 @@ export default class extends Phaser.Scene {
     let targetTextValue = ''
     // targetTextValue = (this.targetValue / 100).toFixed(2)
 
+    this.customer = new Customer(this, 500, 500)
+
+    this.add.existing(this.customer)
+
     this.targetText = this.add
       .text(0, 20, targetTextValue, TEXT_CONFIG)
       .setShadow(2, 2, '#333333', 2, false, true)
@@ -51,22 +55,36 @@ export default class extends Phaser.Scene {
       .setShadow(2, 2, '#333333', 2, false, true)
 
     this.add
-      .image(this.width / 2, this.height - 100, 'submit')
+      .image(this.width - 100, this.height * 0.6, 'submit')
       .setScale(1)
       .setInteractive()
       .on('pointerdown', () => {
         const presented = this.moneyGroup.getPresented()
-        const customer = this.moneyGroup.getCustomer()
-        if (presented.value === customer.value - this.targetValue) {
+        const customerMoney = this.moneyGroup.getCustomer()
+        if (presented.value === customerMoney.value - this.targetValue) {
           presented.sprites.forEach((p) => p.destroy())
           this.productGroup.createProducts()
           this.targetValue = this.productGroup.getTotalValue()
-          customer.sprites.forEach((s) => {
+          this.tweens.add({
+            targets: [this.customer],
+            x: this.width + 500,
+            duration: 700,
+            ease: 'Power2',
+            onComplete: () => {
+              this.customer.destroy()
+              this.customer = new Customer(this, 500, 500)
+              this.add.existing(this.customer)
+            },
+          })
+          customerMoney.sprites.forEach((s) => {
             s.makeDraggable()
             this.tweens.add({
               targets: [s],
-              y: this.height * 0.66,
-              duration: 500,
+              angle: Phaser.Math.RND.between(-30, 30),
+              x: this.width / 2,
+              y: this.height * 0.77,
+              duration: 700,
+              ease: 'Power2',
             })
           })
         }

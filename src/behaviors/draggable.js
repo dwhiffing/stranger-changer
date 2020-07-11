@@ -40,6 +40,8 @@ export const DRAGGABLE = {
     }
 
     entity.on('pointermove', () => {
+      entity.lastX = entity.x
+      entity.lastY = entity.y
       if (entity.isHeld) {
         entity.onDrag()
       }

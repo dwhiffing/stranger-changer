@@ -2,7 +2,7 @@ import { TEXT_CONFIG } from '..'
 
 class ProductContainer extends Phaser.GameObjects.Container {
   constructor(scene, x, y, value, index) {
-    super(scene, x, -200)
+    super(scene, -200, y)
     this.sprite = new Product(scene, 0, 0)
     this.add(this.sprite)
     this.index = index
@@ -18,9 +18,9 @@ class ProductContainer extends Phaser.GameObjects.Container {
     })
     this.scene.tweens.add({
       targets: [this],
-      x,
-      y: y + Math.random() * 100,
-      angle: Phaser.Math.RND.between(-30, 30),
+      x: x + Math.random() * 50,
+      y: y + Math.random() * 10,
+      // angle: Phaser.Math.RND.between(-30, 30),
       duration: 500,
       ease: 'Power2',
       delay: 1000 + index * 100,
@@ -42,7 +42,7 @@ class ProductContainer extends Phaser.GameObjects.Container {
     this.value = 0
     this.scene.tweens.add({
       targets: [this],
-      y: -200,
+      x: this.scene.width + 300,
       angle: Phaser.Math.RND.between(-30, 30),
       duration: 1000,
       ease: 'Power2',
@@ -61,6 +61,6 @@ class Product extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, 'product')
     this.scene = scene
     this.setOrigin(0.5)
-    this.setScale(0.75)
+    this.setScale(0.5)
   }
 }
