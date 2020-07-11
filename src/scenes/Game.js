@@ -1,11 +1,6 @@
-import Money from '../sprites/Money'
-
-const TEXT_CONFIG = {
-  fontFamily: 'Space Mono',
-  fontSize: 100,
-  align: 'center',
-  color: '#ffffff',
-}
+import { TEXT_CONFIG } from '..'
+import { MoneyGroup } from '../gameObjects/MoneyGroup'
+import { ProductGroup } from '../gameObjects/ProductGroup'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -16,6 +11,7 @@ export default class extends Phaser.Scene {
     this.width = this.cameras.main.width
     this.height = this.cameras.main.height
     this.moneyGroup = new MoneyGroup(this)
+    this.productGroup = new ProductGroup(this)
   }
 
   create() {
@@ -31,27 +27,19 @@ export default class extends Phaser.Scene {
       ),
     )
 
-    // create random target value
-    this.targetValue = Math.floor(Math.random() * 1000)
-
-    // create starting money
-    for (let i = 0; i < 4; i++) {
-      new Money(
-        this,
-        143 + 265 * i,
-        this.height - 300,
-        Phaser.Math.RND.pick([2000, 1000, 500]),
-      )
-    }
-
-    // add money dragging
-    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-      gameObject.x = dragX
-      gameObject.y = dragY
+    this.moneyGroup.createMoney()
+    this.input.on('drag', (pointer, money, dragX, dragY) => {
+      money.x = dragX
+      money.y = dragY
     })
 
+    this.productGroup.createProducts()
+    this.targetValue = this.productGroup.getTotalValue()
+    let targetTextValue = ''
+    // targetTextValue = (this.targetValue / 100).toFixed(2)
+
     this.targetText = this.add
-      .text(0, 20, (this.targetValue / 100).toFixed(2), TEXT_CONFIG)
+      .text(0, 20, targetTextValue, TEXT_CONFIG)
       .setShadow(2, 2, '#333333', 2, false, true)
 
     this.totalText = this.add
@@ -68,17 +56,12 @@ export default class extends Phaser.Scene {
     const valuePresented = presentedMoney.reduce((sum, t) => sum + t.value, 0)
     this.totalText.text = valuePresented / 100
 
-    // if value is equal, clear money
+    // if value is equal, clear money and get new products
     if (valuePresented === this.targetValue) {
-      this.targetValue = Math.floor(Math.random() * 1000)
-      this.targetText.text = (this.targetValue / 100).toFixed(2)
       presentedMoney.forEach((p) => p.destroy())
+      this.productGroup.createProducts()
+      this.targetValue = this.productGroup.getTotalValue()
+      // this.targetText.text = (this.targetValue / 100).toFixed(2)
     }
-  }
-}
-
-class MoneyGroup extends Phaser.Physics.Arcade.Group {
-  constructor(scene) {
-    super(scene.physics.world, scene)
   }
 }

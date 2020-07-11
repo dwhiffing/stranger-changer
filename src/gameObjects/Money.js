@@ -1,15 +1,3 @@
-export const VALUES = [2000, 1000, 500, 100, 25, 10, 5, 1]
-export const AMOUNTS = [
-  [1000, 1000],
-  [500, 500],
-  [100, 100, 100, 100, 100],
-  [25, 25, 25, 25],
-  [10, 10, 5],
-  [5, 5],
-  [1, 1, 1, 1, 1],
-  [],
-]
-
 class Money extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, value) {
     let sprite = value >= 100 ? 'cash' : 'change'
@@ -42,7 +30,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.value = value
     this.originX = 1
     this.originY = 1
-    this.setDrag(600, 600)
+    this.setDrag(1200, 1200)
     this.setScale(0.75)
     this.setAngularDrag(100)
     this.setInteractive()
@@ -66,6 +54,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.on('pointerdown', this.onClick)
     this.on('pointerover', () => this.setTint(0x44ff44))
     this.on('pointerout', () => this.clearTint())
+    this.setDepth(value >= 100 ? 0 : 1)
   }
 
   breakdown() {
@@ -125,3 +114,15 @@ class Money extends Phaser.Physics.Arcade.Sprite {
 }
 
 export default Money
+
+const VALUES = [2000, 1000, 500, 100, 25, 10, 5, 1]
+const AMOUNTS = [
+  [1000, 1000],
+  [500, 500],
+  [100, 100, 100, 100, 100],
+  [25, 25, 25, 25],
+  [10, 10, 5],
+  [5, 5],
+  [1, 1, 1, 1, 1],
+  [],
+]

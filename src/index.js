@@ -22,3 +22,10 @@ var config = {
 }
 
 window.game = new Phaser.Game(config)
+
+export const TEXT_CONFIG = {
+  fontFamily: 'Space Mono',
+  fontSize: 100,
+  align: 'center',
+  color: '#ffffff',
+}
