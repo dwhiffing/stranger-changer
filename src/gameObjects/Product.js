@@ -1,4 +1,4 @@
-import { TEXT_CONFIG } from '..'
+import { TEXT_CONFIG, DURATION_FACTOR } from '..'
 
 class ProductContainer extends Phaser.GameObjects.Container {
   constructor(scene, x, y, value, index) {
@@ -21,9 +21,9 @@ class ProductContainer extends Phaser.GameObjects.Container {
       x: x + Math.random() * 50,
       y: y + Math.random() * 10,
       // angle: Phaser.Math.RND.between(-30, 30),
-      duration: 500,
+      duration: 350 * DURATION_FACTOR,
       ease: 'Power2',
-      delay: 1000 + index * 100,
+      delay: 700 + index * 200 * DURATION_FACTOR,
     })
 
     this.text = this.scene.add
@@ -44,9 +44,9 @@ class ProductContainer extends Phaser.GameObjects.Container {
       targets: [this],
       x: this.scene.width + 300,
       angle: Phaser.Math.RND.between(-30, 30),
-      duration: 1000,
+      duration: 1000 * DURATION_FACTOR,
       ease: 'Power2',
-      delay: this.index * 100,
+      delay: this.index * 100 * DURATION_FACTOR,
       onComplete: () => {
         super.destroy()
       },

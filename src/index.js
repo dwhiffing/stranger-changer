@@ -33,3 +33,5 @@ export const TEXT_CONFIG = {
   align: 'center',
   color: '#ffffff',
 }
+
+export const DURATION_FACTOR = 0.5

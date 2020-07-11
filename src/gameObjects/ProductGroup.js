@@ -1,5 +1,6 @@
 import Product from './Product'
 import Money, { VALUES } from './Money'
+import { DURATION_FACTOR } from '..'
 export class ProductGroup extends Phaser.Physics.Arcade.Group {
   constructor(scene) {
     super(scene.physics.world, scene)
@@ -33,7 +34,7 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
         y: 500,
         angle: 5,
         draggable: false,
-        delay: 1000,
+        delay: 1500 * DURATION_FACTOR,
       },
     )
     money.setTint(0xff0000)

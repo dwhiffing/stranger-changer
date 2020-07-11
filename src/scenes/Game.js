@@ -1,4 +1,4 @@
-import { TEXT_CONFIG } from '..'
+import { TEXT_CONFIG, DURATION_FACTOR } from '..'
 import { MoneyGroup } from '../gameObjects/MoneyGroup'
 import { ProductGroup } from '../gameObjects/ProductGroup'
 import Customer from '../gameObjects/Customer'
@@ -42,9 +42,7 @@ export default class extends Phaser.Scene {
     let targetTextValue = ''
     // targetTextValue = (this.targetValue / 100).toFixed(2)
 
-    this.customer = new Customer(this, 500, 500)
-
-    this.add.existing(this.customer)
+    this.createCustomer()
 
     this.targetText = this.add
       .text(0, 20, targetTextValue, TEXT_CONFIG)
@@ -68,12 +66,10 @@ export default class extends Phaser.Scene {
           this.tweens.add({
             targets: [this.customer],
             x: this.width + 500,
-            duration: 700,
+            duration: 700 * DURATION_FACTOR,
             ease: 'Power2',
             onComplete: () => {
-              this.customer.destroy()
-              this.customer = new Customer(this, 500, 500)
-              this.add.existing(this.customer)
+              this.createCustomer()
             },
           })
           customerMoney.sprites.forEach((s) => {
@@ -83,7 +79,7 @@ export default class extends Phaser.Scene {
               angle: Phaser.Math.RND.between(-30, 30),
               x: this.width / 2,
               y: this.height * 0.77,
-              duration: 700,
+              duration: 700 * DURATION_FACTOR,
               ease: 'Power2',
             })
           })
@@ -97,5 +93,11 @@ export default class extends Phaser.Scene {
     this.behavior.preUpdate()
     this.behavior.update()
     this.totalText.text = this.moneyGroup.getPresented().value / 100
+  }
+
+  createCustomer() {
+    this.customer && this.customer.destroy()
+    this.customer = new Customer(this, 500, 500)
+    this.add.existing(this.customer)
   }
 }
