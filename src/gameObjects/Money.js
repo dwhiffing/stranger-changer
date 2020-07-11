@@ -110,7 +110,9 @@ class Money extends Phaser.Physics.Arcade.Sprite {
 
   makeDraggable() {
     this.draggable = true
-    this.behaviors.set('draggable', DRAGGABLE)
+    this.behaviors.set('draggable', DRAGGABLE, {
+      minY: this.scene.height * 0.5,
+    })
     this.on('pointerdown', this.onClick)
     this.setTint(0xffffff)
   }
@@ -124,8 +126,8 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.setCollideWorldBounds(false)
     this.scene.tweens.add({
       targets: [this],
-      y: -600,
-      duration: 1000 * DURATION_FACTOR,
+      x: this.scene.width + 300,
+      duration: 400 * DURATION_FACTOR,
       ease: 'Power2',
       delay: this.index * 100 * DURATION_FACTOR,
       onComplete: () => {

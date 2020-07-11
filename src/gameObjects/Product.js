@@ -9,13 +9,14 @@ class ProductContainer extends Phaser.GameObjects.Container {
     this.setSize(this.sprite.width, this.sprite.height)
     this.scene = scene
     this.value = value
+    this.sprite.setFrame(Phaser.Math.RND.between(0, 3))
     this.setInteractive()
-    this.on('pointerover', () => {
-      this.text.alpha = 1
-    })
-    this.on('pointerout', () => {
-      this.text.alpha = 0
-    })
+    // this.on('pointerover', () => {
+    //   this.text.alpha = 1
+    // })
+    // this.on('pointerout', () => {
+    //   this.text.alpha = 0
+    // })
     this.scene.tweens.add({
       targets: [this],
       x: x + Math.random() * 50,

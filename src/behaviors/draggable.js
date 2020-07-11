@@ -1,5 +1,7 @@
 export const DRAGGABLE = {
   options: {
+    maxY: 9999,
+    minY: -100,
     // speed: 550,
     // turnRate: 5,
     // getShouldAvoid: null,
@@ -11,6 +13,8 @@ export const DRAGGABLE = {
     entity.moveTimer = 5
     entity.lastX = entity.x
     entity.lastY = entity.y
+    entity.maxY = opts.maxY
+    entity.minY = opts.minY
     entity.onDrag = () => {
       if (entity.moveTimer-- === 0) {
         entity.lastX = entity.x
@@ -55,5 +59,12 @@ export const DRAGGABLE = {
     })
   },
 
-  update(entity) {},
+  update(entity) {
+    if (entity.y > entity.maxY) {
+      entity.y = entity.maxY
+    }
+    if (entity.y < entity.minY) {
+      entity.y = entity.minY
+    }
+  },
 }

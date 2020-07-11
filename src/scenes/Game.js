@@ -2,6 +2,7 @@ import { TEXT_CONFIG, DURATION_FACTOR } from '..'
 import { MoneyGroup } from '../gameObjects/MoneyGroup'
 import { ProductGroup } from '../gameObjects/ProductGroup'
 import Customer from '../gameObjects/Customer'
+import Money, { VALUES } from '../gameObjects/Money'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -13,6 +14,7 @@ export default class extends Phaser.Scene {
     this.height = this.cameras.main.height
     this.moneyGroup = new MoneyGroup(this)
     this.productGroup = new ProductGroup(this)
+    this.score = 0
   }
 
   create() {
@@ -38,17 +40,28 @@ export default class extends Phaser.Scene {
     })
 
     this.productGroup.createProducts()
-    this.targetValue = this.productGroup.getTotalValue()
-    let targetTextValue = ''
-    // targetTextValue = (this.targetValue / 100).toFixed(2)
-
     this.createCustomer()
-
-    this.targetText = this.add
-      .text(0, 20, targetTextValue, TEXT_CONFIG)
+    this.presentCustomerMoney()
+    this.targetValue = this.productGroup.getTotalValue()
+    this.timerValue = 60
+    this.timeText = this.add
+      .text(20, 20, this.timerValue, TEXT_CONFIG)
       .setShadow(2, 2, '#333333', 2, false, true)
 
-    this.totalText = this.add
+    this.time.addEvent({
+      delay: 1000,
+      repeat: -1,
+      callback: () => {
+        this.timerValue--
+        if (this.timerValue === -1) {
+          this.scene.start('Menu', { score: this.score })
+          return
+        }
+        this.timeText.text = this.timerValue
+      },
+    })
+
+    this.scoreText = this.add
       .text(this.width - 200, 20, 0, TEXT_CONFIG)
       .setShadow(2, 2, '#333333', 2, false, true)
 
@@ -60,16 +73,24 @@ export default class extends Phaser.Scene {
         const presented = this.moneyGroup.getPresented()
         const customerMoney = this.moneyGroup.getCustomer()
         if (presented.value === customerMoney.value - this.targetValue) {
+          this.score += 10
+          this.scoreText.text = this.score
           presented.sprites.forEach((p) => p.destroy())
-          this.productGroup.createProducts()
-          this.targetValue = this.productGroup.getTotalValue()
+          const products = [...this.productGroup.getChildren()]
+          products.forEach((p) => {
+            p.destroy()
+            p.value = 0
+          })
           this.tweens.add({
             targets: [this.customer],
-            x: this.width + 500,
+            x: this.width + 600,
             duration: 700 * DURATION_FACTOR,
             ease: 'Power2',
             onComplete: () => {
               this.createCustomer()
+              this.productGroup.createProducts()
+              this.presentCustomerMoney()
+              this.targetValue = this.productGroup.getTotalValue()
             },
           })
           customerMoney.sprites.forEach((s) => {
@@ -80,6 +101,7 @@ export default class extends Phaser.Scene {
               x: this.width / 2,
               y: this.height * 0.77,
               duration: 700 * DURATION_FACTOR,
+              delay: 200 * DURATION_FACTOR,
               ease: 'Power2',
             })
           })
@@ -92,12 +114,32 @@ export default class extends Phaser.Scene {
   update() {
     this.behavior.preUpdate()
     this.behavior.update()
-    this.totalText.text = this.moneyGroup.getPresented().value / 100
+    // this.totalText.text = this.moneyGroup.getPresented().value / 100
   }
 
   createCustomer() {
     this.customer && this.customer.destroy()
-    this.customer = new Customer(this, 500, 500)
+    this.customer = new Customer(this, 500, 500, Phaser.Math.RND.between(0, 3))
     this.add.existing(this.customer)
   }
+
+  presentCustomerMoney() {
+    const total = this.productGroup.getTotalValue()
+    const money = new Money(
+      this,
+      this.width - 200,
+      770,
+      [...VALUES].reverse().find((v) => v >= total),
+      {
+        x: -200,
+        y: 500,
+        angle: 5,
+        draggable: false,
+        delay: 1500 * DURATION_FACTOR,
+      },
+    )
+    this.customer && money.setTint(moneyTints[this.customer.frameIndex])
+  }
 }
+
+const moneyTints = [0xff0000, 0xffff00, 0x0000ff, 0x00ff00]

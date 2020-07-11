@@ -23,21 +23,6 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
         i,
       )
     }
-    const total = this.getTotalValue()
-    const money = new Money(
-      this.scene,
-      this.scene.width - 200,
-      770,
-      [...VALUES].reverse().find((v) => v >= total),
-      {
-        x: -200,
-        y: 500,
-        angle: 5,
-        draggable: false,
-        delay: 1500 * DURATION_FACTOR,
-      },
-    )
-    money.setTint(0xff0000)
   }
 
   getTotalValue() {

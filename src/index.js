@@ -6,7 +6,7 @@ var config = {
   type: Phaser.AUTO,
   width: 1080,
   height: 1920,
-  backgroundColor: '#166273',
+  backgroundColor: '#1d332f',
   parent: 'phaser-example',
   plugins: {
     global: [{ key: 'BehaviorPlugin', plugin: BehaviorPlugin, start: true }],
@@ -34,4 +34,4 @@ export const TEXT_CONFIG = {
   color: '#ffffff',
 }
 
-export const DURATION_FACTOR = 0.5
+export const DURATION_FACTOR = 1
