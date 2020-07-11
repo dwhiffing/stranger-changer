@@ -1,15 +1,16 @@
 import { TEXT_CONFIG, DURATION_FACTOR } from '..'
 
 class ProductContainer extends Phaser.GameObjects.Container {
-  constructor(scene, x, y, value, index) {
+  constructor(scene, x, y, index, frame = 0) {
     super(scene, -200, y)
     this.sprite = new Product(scene, 0, 0)
     this.add(this.sprite)
     this.index = index
     this.setSize(this.sprite.width, this.sprite.height)
     this.scene = scene
-    this.value = value
-    this.sprite.setFrame(Phaser.Math.RND.between(0, 3))
+    this.frameIndex = frame
+    this.sprite.setFrame(this.frameIndex)
+    this.value = PRICES[this.frameIndex]
     this.setInteractive()
     // this.on('pointerover', () => {
     //   this.text.alpha = 1
@@ -65,3 +66,5 @@ class Product extends Phaser.Physics.Arcade.Sprite {
     this.setScale(0.5)
   }
 }
+
+export const PRICES = [100, 200, 50, 500, 875, 1600, 1933, 2317]

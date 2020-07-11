@@ -7,20 +7,20 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
     this.scene = scene
   }
 
-  createProducts() {
+  createProducts(number = 1, indexes = [0]) {
     const thing = [...this.getChildren()]
     thing.forEach((p) => {
       p.destroy()
       p.value = 0
     })
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < number; i++) {
       new Product(
         this.scene,
-        120 + 180 * i,
-        730,
-        Math.floor(1 + Math.random() * 3) * 100,
+        120 + 180 * (i % 4),
+        730 + (i >= 4 ? 200 : 0),
         i,
+        Phaser.Math.RND.pick(indexes),
       )
     }
   }
