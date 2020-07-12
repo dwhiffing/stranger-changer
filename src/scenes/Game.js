@@ -156,6 +156,10 @@ export default class extends Phaser.Scene {
   }
 
   onClipboard() {
+    if (this.clipboardIsUp) {
+      return
+    }
+    this.clipboardIsUp = true
     this.tweens.add({
       targets: [this.clipboard],
       y: 200,
@@ -169,6 +173,7 @@ export default class extends Phaser.Scene {
   }
 
   onClipboardUp() {
+    this.clipboardIsUp = false
     this.tweens.add({
       targets: [this.clipboard],
       y: this.height,
