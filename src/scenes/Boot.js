@@ -22,7 +22,8 @@ export default class extends Phaser.Scene {
       'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js',
     )
 
-    this.load.audio('bounce', 'assets/audio/bounce.mp3')
+    this.load.audio('menuMusic', 'assets/audio/grocer-menu-music.mp3')
+    this.load.audio('gameMusic', 'assets/audio/grocer-game-music.mp3')
     this.load.image('playButton', 'assets/images/button.png')
     this.load.image('title', 'assets/images/title.png')
     this.load.spritesheet('submit', 'assets/images/submit.png', {

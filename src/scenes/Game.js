@@ -32,6 +32,8 @@ export default class extends Phaser.Scene {
     this.score = 0
     this.level = 0
     this.numCustomers = 0
+    this.music = this.sound.add('gameMusic', { loop: true, volume: 0.35 })
+    this.music.play()
   }
 
   create() {
@@ -64,6 +66,7 @@ export default class extends Phaser.Scene {
         this.timerValue--
         this.roundTimer--
         if (this.timerValue <= -1) {
+          this.music.stop()
           this.scene.start('Menu', { score: this.score })
           return
         }

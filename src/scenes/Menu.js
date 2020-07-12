@@ -26,15 +26,27 @@ export default class extends Phaser.Scene {
         .setShadow(2, 2, '#333333', 2, false, true)
         .setOrigin(0.5)
     }
+    this.music = this.sound.add('menuMusic', { loop: true, volume: 0.35 })
+    this.music.play()
   }
 
   create() {
-    this.add
+    const button = this.add
       .image(this.width / 2, this.height / 1.2, 'playButton')
       .setScale(1.8)
       .setInteractive()
       .on('pointerdown', () => {
+        this.music.stop()
         this.scene.start('Game')
       })
+    button.angle = -20
+    this.tweens.add({
+      targets: [button],
+      angle: 20,
+      ease: 'Power2',
+      yoyo: true,
+      repeat: -1,
+      duration: 300,
+    })
   }
 }
