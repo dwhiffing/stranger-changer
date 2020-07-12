@@ -1,5 +1,5 @@
 import { DURATION_FACTOR } from '..'
-
+//TODO: ensure same customer can't go twice in a row
 export default class Customer extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x = 0, y = 0, frame = 0) {
     super(scene, -300, y, 'customer')

@@ -106,7 +106,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
 
     this.scene &&
       this.scene.time.addEvent({
-        delay: 300 * DURATION_FACTOR,
+        delay: 500 * DURATION_FACTOR,
         callback: () => {
           this.wasClicked = false
         },

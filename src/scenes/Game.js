@@ -4,15 +4,17 @@ import { ProductGroup } from '../gameObjects/ProductGroup'
 import Customer from '../gameObjects/Customer'
 import Money, { VALUES } from '../gameObjects/Money'
 import ClipboardModal from '../gameObjects/Clipboard'
-
+import { times } from 'lodash'
+const TIMER_MAX = 200
+const PROGRESSION = [3, 7, 12, 18, 25, 33, 42, 52]
 const LEVELS = [
   { minProducts: 1, maxProducts: 2, productIndexes: [0, 1] },
-  { minProducts: 1, maxProducts: 3, productIndexes: [0, 1, 2] },
-  { minProducts: 2, maxProducts: 5, productIndexes: [0, 1, 2, 3] },
-  { minProducts: 2, maxProducts: 5, productIndexes: [0, 1, 2, 3, 4] },
-  { minProducts: 3, maxProducts: 6, productIndexes: [0, 1, 2, 3, 4] },
-  { minProducts: 3, maxProducts: 7, productIndexes: [1, 2, 3, 4, 5] },
-  { minProducts: 4, maxProducts: 8, productIndexes: [2, 3, 4, 5, 6] },
+  { minProducts: 2, maxProducts: 3, productIndexes: [0, 1] },
+  { minProducts: 2, maxProducts: 3, productIndexes: [0, 1] },
+  { minProducts: 3, maxProducts: 4, productIndexes: [0, 1, 2] },
+  { minProducts: 3, maxProducts: 5, productIndexes: [0, 1, 2, 3] },
+  { minProducts: 4, maxProducts: 6, productIndexes: [0, 1, 2, 3, 4] },
+  { minProducts: 4, maxProducts: 7, productIndexes: [2, 3, 4, 5, 6] },
   { minProducts: 4, maxProducts: 8, productIndexes: [3, 4, 5, 6, 7] },
   { minProducts: 5, maxProducts: 8, productIndexes: [4, 5, 6, 7, 8] },
 ]
@@ -28,7 +30,8 @@ export default class extends Phaser.Scene {
     this.moneyGroup = new MoneyGroup(this)
     this.productGroup = new ProductGroup(this)
     this.score = 0
-    this.level = 3
+    this.level = 0
+    this.numCustomers = 0
   }
 
   create() {
@@ -48,26 +51,23 @@ export default class extends Phaser.Scene {
     })
 
     const bar = this.add.image(10, 10, 'bar').setOrigin(0).setScale(1, 0.7)
-    const bar2 = this.add
+    this.bar2 = this.add
       .image(10, 10, 'bar-2')
       .setOrigin(0)
       .setScale(1, 0.7)
       .setTint(0x88dd88)
-    this.timerValue = 60
+    this.timerValue = TIMER_MAX
     this.time.addEvent({
       delay: 1000,
       repeat: -1,
       callback: () => {
         this.timerValue--
+        this.roundTimer--
         if (this.timerValue === -1) {
           this.scene.start('Menu', { score: this.score })
           return
         }
-        this.tweens.add({
-          targets: [bar2],
-          scaleX: this.timerValue / 60,
-          duration: 1000,
-        })
+        this.bar2.scaleX = this.timerValue / TIMER_MAX
       },
     })
 
@@ -109,12 +109,23 @@ export default class extends Phaser.Scene {
     const presented = this.moneyGroup.getPresented()
     const customerMoney = this.moneyGroup.getCustomer()
 
+    // TODO: add sad sound for each customre and show sad frame for a few seconds when wrong
+    // Add some particles and screenshake
+
     if (presented.value === customerMoney.value - this.targetValue) {
       // TODO: make score more interesting
-      this.score += 10
+      this.score += this.roundTimer
       this.scoreText.text = this.score
+      this.timerValue += Math.min(Math.floor(this.roundTimer / 4), 10)
+      this.timerValue = Math.min(TIMER_MAX, this.timerValue)
+      this.bar2.scaleX = this.timerValue / TIMER_MAX
 
       this.cleanup()
+
+      // TODO: add nice sound for each customre and show happy frame for a few seconds
+      // Add some particles and screenshake
+
+      // TODO: add progression, increase level every n customers
 
       this.tweens.add({
         targets: [this.customer],
@@ -123,6 +134,9 @@ export default class extends Phaser.Scene {
         ease: 'Power2',
         onComplete: this.nextCustomer.bind(this),
       })
+    } else {
+      this.timerValue -= 10
+      this.bar2.scaleX = this.timerValue / TIMER_MAX
     }
   }
 
@@ -177,6 +191,11 @@ export default class extends Phaser.Scene {
     )
     this.createCustomer()
     this.presentCustomerMoney()
+    this.numCustomers++
+    console.log(this.numCustomers, this.level, PROGRESSION[this.level])
+    if (this.numCustomers > PROGRESSION[this.level]) {
+      this.level++
+    }
     this.targetValue = this.productGroup.getTotalValue()
   }
 
@@ -188,6 +207,7 @@ export default class extends Phaser.Scene {
 
   presentCustomerMoney() {
     let remaining = this.productGroup.getTotalValue()
+    this.roundTimer = 200
     let i = 0
     while (remaining > 0) {
       i++
