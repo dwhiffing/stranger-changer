@@ -24,6 +24,7 @@ export default class extends Phaser.Scene {
 
     this.load.audio('bounce', 'assets/audio/bounce.mp3')
     this.load.image('playButton', 'assets/images/button.png')
+    this.load.image('title', 'assets/images/title.png')
     this.load.spritesheet('submit', 'assets/images/submit.png', {
       frameWidth: 100,
       frameHeight: 100,
@@ -53,11 +54,11 @@ export default class extends Phaser.Scene {
     this.load.on('complete', () => {
       WebFont.load({
         custom: {
-          families: ['Sailec'],
+          families: ['AnotherHand'],
         },
         active: () => {
           progress.destroy()
-          this.scene.start('Game')
+          this.scene.start('Menu')
         },
       })
     })

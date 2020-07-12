@@ -4,19 +4,19 @@ import { ProductGroup } from '../gameObjects/ProductGroup'
 import Customer from '../gameObjects/Customer'
 import Money, { VALUES } from '../gameObjects/Money'
 import ClipboardModal from '../gameObjects/Clipboard'
-import { times } from 'lodash'
-const TIMER_MAX = 200
+
+const TIMER_MAX = 120
 const PROGRESSION = [3, 7, 12, 18, 25, 33, 42, 52]
 const LEVELS = [
   { minProducts: 1, maxProducts: 2, productIndexes: [0, 1] },
   { minProducts: 2, maxProducts: 3, productIndexes: [0, 1] },
-  { minProducts: 2, maxProducts: 3, productIndexes: [0, 1] },
-  { minProducts: 3, maxProducts: 4, productIndexes: [0, 1, 2] },
+  { minProducts: 3, maxProducts: 5, productIndexes: [0, 1, 2] },
   { minProducts: 3, maxProducts: 5, productIndexes: [0, 1, 2, 3] },
-  { minProducts: 4, maxProducts: 6, productIndexes: [0, 1, 2, 3, 4] },
-  { minProducts: 4, maxProducts: 7, productIndexes: [2, 3, 4, 5, 6] },
+  { minProducts: 3, maxProducts: 6, productIndexes: [0, 1, 2, 3, 4] },
+  { minProducts: 3, maxProducts: 7, productIndexes: [1, 2, 3, 4, 5] },
+  { minProducts: 3, maxProducts: 8, productIndexes: [2, 3, 4, 5, 6] },
   { minProducts: 4, maxProducts: 8, productIndexes: [3, 4, 5, 6, 7] },
-  { minProducts: 5, maxProducts: 8, productIndexes: [4, 5, 6, 7, 8] },
+  { minProducts: 4, maxProducts: 8, productIndexes: [4, 5, 6, 7, 8] },
 ]
 
 export default class extends Phaser.Scene {
@@ -63,7 +63,7 @@ export default class extends Phaser.Scene {
       callback: () => {
         this.timerValue--
         this.roundTimer--
-        if (this.timerValue === -1) {
+        if (this.timerValue <= -1) {
           this.scene.start('Menu', { score: this.score })
           return
         }
@@ -72,12 +72,13 @@ export default class extends Phaser.Scene {
     })
 
     this.scoreText = this.add
-      .text(this.width / 2, this.height - 140, 0, {
+      .text(this.width / 2, this.height - 90, 0, {
         ...TEXT_CONFIG,
+        fontSize: 120,
         align: 'center',
       })
       .setShadow(2, 2, '#333333', 2, false, true)
-      .setSize(100)
+      .setOrigin(0.5)
 
     this.add
       .image(this.width - 100, this.height * 0.95, 'submit')
@@ -116,26 +117,37 @@ export default class extends Phaser.Scene {
       // TODO: make score more interesting
       this.score += this.roundTimer
       this.scoreText.text = this.score
+
       this.timerValue += Math.min(Math.floor(this.roundTimer / 4), 10)
       this.timerValue = Math.min(TIMER_MAX, this.timerValue)
       this.bar2.scaleX = this.timerValue / TIMER_MAX
 
-      this.cleanup()
+      this.customer.setFrame(this.customer.frameIndex + 1)
 
       // TODO: add nice sound for each customre and show happy frame for a few seconds
       // Add some particles and screenshake
-
-      // TODO: add progression, increase level every n customers
-
+      this.time.addEvent({
+        delay: 500 * DURATION_FACTOR,
+        callback: this.cleanup.bind(this),
+      })
       this.tweens.add({
         targets: [this.customer],
         x: this.width + 600,
         duration: 700 * DURATION_FACTOR,
+        delay: 500 * DURATION_FACTOR,
         ease: 'Power2',
         onComplete: this.nextCustomer.bind(this),
       })
     } else {
       this.timerValue -= 10
+      this.customer.setFrame(this.customer.frameIndex + 2)
+      this.cameras.main.shake(450, 0.01)
+      this.time.addEvent({
+        delay: 2500,
+        callback: () => {
+          this.customer.setFrame(this.customer.frameIndex)
+        },
+      })
       this.bar2.scaleX = this.timerValue / TIMER_MAX
     }
   }
@@ -171,7 +183,7 @@ export default class extends Phaser.Scene {
         x: this.width / 2,
         y: this.height * 0.77,
         duration: 700 * DURATION_FACTOR,
-        delay: 200 * DURATION_FACTOR,
+        delay: 100 * DURATION_FACTOR,
         ease: 'Power2',
       })
     })
@@ -192,7 +204,6 @@ export default class extends Phaser.Scene {
     this.createCustomer()
     this.presentCustomerMoney()
     this.numCustomers++
-    console.log(this.numCustomers, this.level, PROGRESSION[this.level])
     if (this.numCustomers > PROGRESSION[this.level]) {
       this.level++
     }

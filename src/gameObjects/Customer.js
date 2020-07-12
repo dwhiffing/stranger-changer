@@ -8,7 +8,7 @@ export default class Customer extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(-2)
     this.setFrame(frame * 3)
     this.setScale(1.25)
-    this.frameIndex = frame
+    this.frameIndex = frame * 3
     this.scene.tweens.add({
       targets: [this],
       x: x,
