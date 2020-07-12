@@ -47,7 +47,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.value = value
     this.setOrigin(0.5)
     this.setDrag(1200, 1200)
-    this.setScale(0.65)
+    this.setScale(0.75)
     this.setAngularDrag(100)
     if (!props.instant) {
       this.scene.tweens.add({
@@ -72,13 +72,21 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       this.makeDraggable()
     }
     this.setTint(value >= 100 ? 0x66bb66 : 0x999999)
-    this.on('pointerover', () =>
-      this.setTint(value >= 100 ? 0x22ff22 : 0xffffff),
-    )
-    this.on('pointerout', () =>
-      this.setTint(value >= 100 ? 0x66bb66 : 0x999999),
-    )
+    // this.on('pointerover', () =>
+    //   this.setTint(value >= 100 ? 0x22aa22 : 0xffffff),
+    // )
+    // this.on('pointerout', () =>
+    //   this.setTint(value >= 100 ? 0x66bb66 : 0x999999),
+    // )
     this.setDepth(value >= 100 ? 0 : 1)
+  }
+
+  update() {
+    if (this.y < this.scene.height * 0.66 && this.draggable) {
+      this.setTint(this.value >= 100 ? 0x00ff00 : 0xffffff)
+    } else {
+      this.setTint(this.value >= 100 ? 0x66bb66 : 0x999999)
+    }
   }
 
   breakdown() {

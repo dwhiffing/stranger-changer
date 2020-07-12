@@ -72,7 +72,7 @@ export default class extends Phaser.Scene {
     })
 
     this.scoreText = this.add
-      .text(this.width / 2, this.height - 90, 0, {
+      .text(this.width / 2, this.height - 120, 0, {
         ...TEXT_CONFIG,
         fontSize: 120,
         align: 'center',
@@ -81,18 +81,17 @@ export default class extends Phaser.Scene {
       .setOrigin(0.5)
 
     this.add
-      .image(this.width - 100, this.height * 0.95, 'submit')
-      .setScale(1)
+      .image(this.width - 120, this.height * 0.94, 'submit')
+      .setScale(1.8)
       .setInteractive()
       .on('pointerdown', this.onSubmit.bind(this))
 
     this.add
-      .image(100, this.height * 0.95, 'submit')
-      .setScale(1)
+      .image(120, this.height * 0.94, 'submit')
+      .setScale(1.8)
       .setFrame(1)
       .setInteractive()
       .on('pointerdown', this.onClipboard.bind(this))
-      .on('pointerup', this.onClipboardUp.bind(this))
 
     this.nextCustomer()
     this.clipboard = new ClipboardModal(this)
@@ -103,6 +102,7 @@ export default class extends Phaser.Scene {
   update() {
     this.behavior.preUpdate()
     this.behavior.update()
+    this.moneyGroup.getChildren().forEach((c) => c.update())
     // this.totalText.text = this.moneyGroup.getPresented().value / 100
   }
 
@@ -155,10 +155,13 @@ export default class extends Phaser.Scene {
   onClipboard() {
     this.tweens.add({
       targets: [this.clipboard],
-      y: 400,
-      duration: 800 * DURATION_FACTOR,
+      y: 200,
+      duration: 400 * DURATION_FACTOR,
       delay: 100 * DURATION_FACTOR,
       ease: 'Power2',
+      onComplete: () => {
+        this.input.once('pointerdown', this.onClipboardUp.bind(this))
+      },
     })
   }
 

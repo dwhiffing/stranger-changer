@@ -63,7 +63,7 @@ export class Product extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, 'product')
     this.scene = scene
     this.setOrigin(0.5)
-    this.setScale(1)
+    this.setScale(1.25)
   }
 }
 
