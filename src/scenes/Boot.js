@@ -24,9 +24,16 @@ export default class extends Phaser.Scene {
 
     this.load.audio('bounce', 'assets/audio/bounce.mp3')
     this.load.image('playButton', 'assets/images/button.png')
-    this.load.image('submit', 'assets/images/submit.png')
+    this.load.spritesheet('submit', 'assets/images/submit.png', {
+      frameWidth: 100,
+      frameHeight: 100,
+    })
     this.load.image('table', 'assets/images/table.png')
-    this.load.spritesheet('customer', 'assets/images/customer.png', {
+    this.load.image('bar', 'assets/images/bar.png')
+    this.load.image('bar-2', 'assets/images/bar-2.png')
+    this.load.image('background', 'assets/images/background.png')
+    this.load.image('clipboard', 'assets/images/clipboard.png')
+    this.load.spritesheet('customer', 'assets/images/customers.png', {
       frameWidth: 512,
       frameHeight: 512,
     })

@@ -5,6 +5,7 @@ const defaultProps = {
   y: 200,
   angle: 2,
   alpha: 1,
+  index: 0,
   draggable: true,
   instant: false,
   delay: 0,
@@ -51,12 +52,12 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     if (!props.instant) {
       this.scene.tweens.add({
         targets: [this],
-        x,
         alpha: props.alpha,
-        y: y + Math.random() * 100,
+        x: x + props.index * 30,
+        y: y + Math.random() * 50 + props.index * 20,
         angle: Phaser.Math.RND.between(-props.angle, props.angle),
         duration: 500 * DURATION_FACTOR,
-        delay: props.delay,
+        delay: props.delay + props.index * 500 * DURATION_FACTOR,
         ease: 'Power2',
         onComplete: () => {
           this.setCollideWorldBounds(true, 0.2, 0.2)
@@ -70,9 +71,13 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     if (props.draggable) {
       this.makeDraggable()
     }
-
-    this.on('pointerover', () => this.setTint(0x44ff44))
-    this.on('pointerout', () => this.clearTint())
+    this.setTint(value >= 100 ? 0x66bb66 : 0x999999)
+    this.on('pointerover', () =>
+      this.setTint(value >= 100 ? 0x22ff22 : 0xffffff),
+    )
+    this.on('pointerout', () =>
+      this.setTint(value >= 100 ? 0x66bb66 : 0x999999),
+    )
     this.setDepth(value >= 100 ? 0 : 1)
   }
 
@@ -114,7 +119,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       minY: this.scene.height * 0.5,
     })
     this.on('pointerdown', this.onClick)
-    this.setTint(0xffffff)
+    this.setTint(0x44dd44)
   }
 
   destroy(instant = false) {

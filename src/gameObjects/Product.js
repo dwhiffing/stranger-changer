@@ -28,13 +28,13 @@ class ProductContainer extends Phaser.GameObjects.Container {
       delay: 700 + index * 200 * DURATION_FACTOR,
     })
 
-    this.text = this.scene.add
-      .text(-60, -40, (this.value / 100).toFixed(2), {
-        ...TEXT_CONFIG,
-        fontSize: 60,
-      })
-      .setShadow(2, 2, '#333333', 2, false, true)
-    this.add(this.text)
+    // this.text = this.scene.add
+    //   .text(-60, -40, (this.value / 100).toFixed(2), {
+    //     ...TEXT_CONFIG,
+    //     fontSize: 60,
+    //   })
+    //   .setShadow(2, 2, '#333333', 2, false, true)
+    // this.add(this.text)
 
     // this.text.alpha = 0
     scene.productGroup.add(this, true)
@@ -58,13 +58,13 @@ class ProductContainer extends Phaser.GameObjects.Container {
 
 export default ProductContainer
 
-class Product extends Phaser.Physics.Arcade.Sprite {
+export class Product extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x = 0, y = 0) {
     super(scene, x, y, 'product')
     this.scene = scene
     this.setOrigin(0.5)
-    this.setScale(0.5)
+    this.setScale(1)
   }
 }
 
-export const PRICES = [100, 200, 50, 500, 875, 1600, 1933, 2317]
+export const PRICES = [100, 200, 50, 350, 425, 900, 1175, 1411]

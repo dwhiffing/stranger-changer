@@ -3,6 +3,7 @@ import { MoneyGroup } from '../gameObjects/MoneyGroup'
 import { ProductGroup } from '../gameObjects/ProductGroup'
 import Customer from '../gameObjects/Customer'
 import Money, { VALUES } from '../gameObjects/Money'
+import ClipboardModal from '../gameObjects/Clipboard'
 
 const LEVELS = [
   { minProducts: 1, maxProducts: 2, productIndexes: [0, 1] },
@@ -27,25 +28,18 @@ export default class extends Phaser.Scene {
     this.moneyGroup = new MoneyGroup(this)
     this.productGroup = new ProductGroup(this)
     this.score = 0
-    this.level = 7
+    this.level = 3
   }
 
   create() {
     this.behavior = this.plugins.get('BehaviorPlugin')
 
-    const table = this.add.image(20, 1405, 'table')
-    table.setScale(2.2, 1.5)
-
-    var graphics = this.add.graphics()
-    graphics.lineStyle(4, 0xffffff, 1)
-    graphics.strokeLineShape(
-      new Phaser.Geom.Line(
-        0,
-        this.height * 0.65,
-        this.width,
-        this.height * 0.65,
-      ),
-    )
+    const background = this.add.image(0, 0, 'background')
+    background.setOrigin(0)
+    background.setDepth(-3)
+    const table = this.add.image(0, 0, 'table')
+    table.setOrigin(0)
+    table.setDepth(-1)
 
     this.moneyGroup.createMoney()
     this.input.on('drag', (pointer, money, dragX, dragY) => {
@@ -53,11 +47,13 @@ export default class extends Phaser.Scene {
       money.y = dragY
     })
 
+    const bar = this.add.image(10, 10, 'bar').setOrigin(0).setScale(1, 0.7)
+    const bar2 = this.add
+      .image(10, 10, 'bar-2')
+      .setOrigin(0)
+      .setScale(1, 0.7)
+      .setTint(0x88dd88)
     this.timerValue = 60
-    this.timeText = this.add
-      .text(20, 20, this.timerValue, TEXT_CONFIG)
-      .setShadow(2, 2, '#333333', 2, false, true)
-
     this.time.addEvent({
       delay: 1000,
       repeat: -1,
@@ -67,21 +63,38 @@ export default class extends Phaser.Scene {
           this.scene.start('Menu', { score: this.score })
           return
         }
-        this.timeText.text = this.timerValue
+        this.tweens.add({
+          targets: [bar2],
+          scaleX: this.timerValue / 60,
+          duration: 1000,
+        })
       },
     })
 
     this.scoreText = this.add
-      .text(this.width - 200, 20, 0, TEXT_CONFIG)
+      .text(this.width / 2, this.height - 140, 0, {
+        ...TEXT_CONFIG,
+        align: 'center',
+      })
       .setShadow(2, 2, '#333333', 2, false, true)
+      .setSize(100)
 
     this.add
-      .image(this.width - 100, this.height * 0.6, 'submit')
+      .image(this.width - 100, this.height * 0.95, 'submit')
       .setScale(1)
       .setInteractive()
       .on('pointerdown', this.onSubmit.bind(this))
 
+    this.add
+      .image(100, this.height * 0.95, 'submit')
+      .setScale(1)
+      .setFrame(1)
+      .setInteractive()
+      .on('pointerdown', this.onClipboard.bind(this))
+      .on('pointerup', this.onClipboardUp.bind(this))
+
     this.nextCustomer()
+    this.clipboard = new ClipboardModal(this)
   }
 
   start() {}
@@ -111,6 +124,26 @@ export default class extends Phaser.Scene {
         onComplete: this.nextCustomer.bind(this),
       })
     }
+  }
+
+  onClipboard() {
+    this.tweens.add({
+      targets: [this.clipboard],
+      y: 400,
+      duration: 800 * DURATION_FACTOR,
+      delay: 100 * DURATION_FACTOR,
+      ease: 'Power2',
+    })
+  }
+
+  onClipboardUp() {
+    this.tweens.add({
+      targets: [this.clipboard],
+      y: this.height,
+      duration: 800 * DURATION_FACTOR,
+      delay: 100 * DURATION_FACTOR,
+      ease: 'Power2',
+    })
   }
 
   cleanup() {
@@ -149,28 +182,27 @@ export default class extends Phaser.Scene {
 
   createCustomer() {
     this.customer && this.customer.destroy()
-    this.customer = new Customer(this, 500, 500, Phaser.Math.RND.between(0, 3))
+    this.customer = new Customer(this, 500, 400, Phaser.Math.RND.between(0, 3))
     this.add.existing(this.customer)
   }
 
   presentCustomerMoney() {
-    const total = this.productGroup.getTotalValue()
-    // TODO: need to handle needing more than 1 bill to cash out
-    const money = new Money(
-      this,
-      this.width - 200,
-      770,
-      [...VALUES].reverse().find((v) => v >= total),
-      {
+    let remaining = this.productGroup.getTotalValue()
+    let i = 0
+    while (remaining > 0) {
+      i++
+      const closestValue =
+        [...VALUES].reverse().find((v) => v >= remaining) || 2000
+      remaining -= closestValue
+      const money = new Money(this, this.width - 250, 800, closestValue, {
         x: -200,
         y: 500,
-        angle: 5,
+        angle: 1,
+        index: i,
         draggable: false,
         delay: 1500 * DURATION_FACTOR,
-      },
-    )
-    this.customer && money.setTint(moneyTints[this.customer.frameIndex])
+      })
+      this.customer && money.value >= 100 && money.setTint(0x99aa99)
+    }
   }
 }
-
-const moneyTints = [0xff0000, 0xffff00, 0x0000ff, 0x00ff00]

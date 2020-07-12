@@ -17,8 +17,8 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
     for (let i = 0; i < number; i++) {
       new Product(
         this.scene,
-        120 + 180 * (i % 4),
-        730 + (i >= 4 ? 200 : 0),
+        100 + 175 * (i % 4),
+        740 + (i >= 4 ? 160 : 0),
         i,
         Phaser.Math.RND.pick(indexes),
       )
@@ -26,8 +26,9 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
   }
 
   getTotalValue() {
-    return [...this.getChildren()]
-      .filter((c) => c.active)
-      .reduce((sum, child) => sum + child.value, 0)
+    return [...this.getChildren()].reduce(
+      (sum, child) => sum + Number(child.value) || 0,
+      0,
+    )
   }
 }
