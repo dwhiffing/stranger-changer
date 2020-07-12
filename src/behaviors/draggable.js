@@ -21,18 +21,19 @@ export const DRAGGABLE = {
         entity.lastY = entity.y
         entity.moveTimer = 5
       }
+    }
+    entity.onHover = () => {
       if (entity.angle < -3) {
-        entity.angle += 0.8
+        entity.angle += 1.5
       }
 
       if (entity.angle > 2) {
-        entity.angle -= 0.8
+        entity.angle -= 1.5
       }
     }
 
     entity.throw = () => {
       const { lastX, lastY, x, y } = entity
-      entity.isHeld = false
       const angle = Phaser.Math.Angle.Between(lastX, lastY, x, y)
       const dist = Phaser.Math.Distance.Between(lastX, lastY, x, y)
       entity.setAngularVelocity(dist / 10)
@@ -46,16 +47,21 @@ export const DRAGGABLE = {
     entity.on('pointermove', () => {
       entity.lastX = entity.x
       entity.lastY = entity.y
+      entity.onHover && entity.onHover()
       if (entity.isHeld) {
         entity.onDrag()
       }
     })
     entity.on('pointerdown', () => {
       entity.isHeld = true
+      entity.setDepth(entity.value >= 100 ? 1 : 2)
     })
 
     entity.on('pointerup', () => {
-      entity.throw()
+      entity.isHeld = false
+      entity.setDepth(entity.value >= 100 ? 0 : 1)
+      entity.onDrop && entity.onDrop(true)
+      // entity.throw()
     })
   },
 

@@ -6,12 +6,13 @@ export class MoneyGroup extends Phaser.Physics.Arcade.Group {
   }
 
   createMoney() {
+    const INITIAL_VALUES = [2000, 1000, 500, 100]
     for (let i = 0; i < 4; i++) {
       new Money(
         this.scene,
         143 + 265 * i,
         this.scene.height - 460,
-        Phaser.Math.RND.pick([2000, 1000, 500]),
+        INITIAL_VALUES[i],
         {
           x: 143 + 265 * i,
           y: this.scene.height + 300,

@@ -17,8 +17,8 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
     for (let i = 0; i < number; i++) {
       new Product(
         this.scene,
-        100 + 175 * (i % 4),
-        740 + (i >= 4 ? 160 : 0),
+        110 + 190 * (i % 4),
+        720 + (i >= 4 ? 160 : 0),
         i,
         Phaser.Math.RND.pick(indexes),
       )

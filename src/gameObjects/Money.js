@@ -8,6 +8,7 @@ const defaultProps = {
   index: 0,
   draggable: true,
   instant: false,
+  onComplete: () => {},
   delay: 0,
 }
 class Money extends Phaser.Physics.Arcade.Sprite {
@@ -53,13 +54,15 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       this.scene.tweens.add({
         targets: [this],
         alpha: props.alpha,
-        x: x + props.index * 30,
-        y: y + Math.random() * 50 + props.index * 20,
+        x: x + props.index * 20,
+        y: y + Math.random() * 5 + props.index * 50,
         angle: Phaser.Math.RND.between(-props.angle, props.angle),
         duration: 500 * DURATION_FACTOR,
         delay: props.delay + props.index * 500 * DURATION_FACTOR,
         ease: 'Power2',
         onComplete: () => {
+          props.onComplete && props.onComplete()
+          this.onDrop(true)
           this.setCollideWorldBounds(true, 0.2, 0.2)
         },
       })
@@ -102,12 +105,30 @@ class Money extends Phaser.Physics.Arcade.Sprite {
       money.setAcceleration(0, 0)
       money.setAngularVelocity((index - num * 0.5) * 30)
     })
+    if (this.value > 100) {
+      this.scene.cashBreakdownSound.play()
+    } else {
+      this.scene.coinBreakdownSound.play()
+    }
     this.destroy(true)
   }
 
   onClick() {
+    this.scene.tweens.add({
+      targets: [this],
+      scale: 0.85,
+      ease: 'Power2',
+      duration: 200,
+    })
+
     if (this.wasClicked && this.value > 1) {
       this.breakdown()
+    }
+
+    if (this.value >= 100) {
+      this.scene && this.scene.cash1Sound.play()
+    } else {
+      this.scene && this.scene.coin1Sound.play()
     }
 
     this.wasClicked = true
@@ -119,6 +140,22 @@ class Money extends Phaser.Physics.Arcade.Sprite {
           this.wasClicked = false
         },
       })
+  }
+
+  onDrop(playSound = false) {
+    this.scene.tweens.add({
+      targets: [this],
+      scale: 0.75,
+      ease: 'Power2',
+      duration: 200,
+    })
+    if (!playSound) return
+
+    if (this.value >= 100) {
+      this.scene && this.scene.cash2Sound.play()
+    } else {
+      this.scene && this.scene.coin2Sound.play()
+    }
   }
 
   makeDraggable() {

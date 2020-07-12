@@ -18,6 +18,7 @@ class ProductContainer extends Phaser.GameObjects.Container {
     // this.on('pointerout', () => {
     //   this.text.alpha = 0
     // })
+
     this.scene.tweens.add({
       targets: [this],
       x: x + Math.random() * 50,
@@ -26,6 +27,9 @@ class ProductContainer extends Phaser.GameObjects.Container {
       duration: 350 * DURATION_FACTOR,
       ease: 'Power2',
       delay: 700 + index * 200 * DURATION_FACTOR,
+      onComplete: () => {
+        this.dropSound()
+      },
     })
 
     // this.text = this.scene.add
@@ -40,8 +44,31 @@ class ProductContainer extends Phaser.GameObjects.Container {
     scene.productGroup.add(this, true)
   }
 
+  dropSound() {
+    const soundChoice = Phaser.Math.RND.between(0, 2)
+    if (soundChoice === 0) {
+      this.scene.productDrop1Sound.play()
+    } else if (soundChoice === 1) {
+      this.scene.productDrop2Sound.play()
+    } else {
+      this.scene.productDrop3Sound.play()
+    }
+  }
+
+  wooshSound() {
+    // const soundChoice = Phaser.Math.RND.between(0, 2)
+    // if (soundChoice === 0) {
+    //   this.scene.woosh1Sound.play()
+    // } else if (soundChoice === 1) {
+    //   this.scene.woosh2Sound.play()
+    // } else {
+    //   this.scene.woosh3Sound.play()
+    // }
+  }
+
   destroy() {
     this.value = 0
+    this.wooshSound()
     this.scene.tweens.add({
       targets: [this],
       x: this.scene.width + 300,
@@ -63,7 +90,7 @@ export class Product extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, 'product')
     this.scene = scene
     this.setOrigin(0.5)
-    this.setScale(1.25)
+    this.setScale(1)
   }
 }
 

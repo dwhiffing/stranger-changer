@@ -9,14 +9,13 @@ const TIMER_MAX = 120
 const PROGRESSION = [3, 7, 12, 18, 25, 33, 42, 52]
 const LEVELS = [
   { minProducts: 1, maxProducts: 2, productIndexes: [0, 1] },
-  { minProducts: 2, maxProducts: 3, productIndexes: [0, 1] },
+  { minProducts: 2, maxProducts: 4, productIndexes: [0, 1] },
   { minProducts: 3, maxProducts: 5, productIndexes: [0, 1, 2] },
   { minProducts: 3, maxProducts: 5, productIndexes: [0, 1, 2, 3] },
   { minProducts: 3, maxProducts: 6, productIndexes: [0, 1, 2, 3, 4] },
   { minProducts: 3, maxProducts: 7, productIndexes: [1, 2, 3, 4, 5] },
   { minProducts: 3, maxProducts: 8, productIndexes: [2, 3, 4, 5, 6] },
   { minProducts: 4, maxProducts: 8, productIndexes: [3, 4, 5, 6, 7] },
-  { minProducts: 4, maxProducts: 8, productIndexes: [4, 5, 6, 7, 8] },
 ]
 
 export default class extends Phaser.Scene {
@@ -34,6 +33,45 @@ export default class extends Phaser.Scene {
     this.numCustomers = 0
     this.music = this.sound.add('gameMusic', { loop: true, volume: 0.35 })
     this.music.play()
+    this.registerSound = this.sound.add('registerSound', {
+      volume: 0.5,
+    })
+    this.manAngry1Voice = this.sound.add('manAngry1Voice')
+    this.manAngry2Voice = this.sound.add('manAngry2Voice')
+    this.manHappy1Voice = this.sound.add('manHappy1Voice')
+    this.manHappy2Voice = this.sound.add('manHappy2Voice')
+    this.manNeutral1Voice = this.sound.add('manNeutral1Voice')
+    this.manNeutral2Voice = this.sound.add('manNeutral2Voice')
+    this.womanAngry1Voice = this.sound.add('womanAngry1Voice')
+    this.womanAngry2Voice = this.sound.add('womanAngry2Voice')
+    this.womanHappy1Voice = this.sound.add('womanHappy1Voice')
+    this.womanHappy2Voice = this.sound.add('womanHappy2Voice')
+    this.womanNeutral1Voice = this.sound.add('womanNeutral1Voice')
+    this.womanNeutral2Voice = this.sound.add('womanNeutral2Voice')
+    this.buzzerSound = this.sound.add('buzzerSound', { volume: 1 })
+    this.whoopsSound = this.sound.add('whoopsSound', { volume: 1 })
+    this.successSound = this.sound.add('successSound', { volume: 1 })
+    this.cash1Sound = this.sound.add('cash1Sound', { volume: 0.3 })
+    this.cash2Sound = this.sound.add('cash2Sound', { volume: 0.4 })
+    this.cashBreakdownSound = this.sound.add('cashBreakdownSound', {
+      volume: 0.5,
+    })
+    this.coin1Sound = this.sound.add('coin1Sound', { volume: 0.2 })
+    this.coin2Sound = this.sound.add('coin2Sound', { volume: 0.5 })
+    this.coinBreakdownSound = this.sound.add('coinBreakdownSound', {
+      volume: 0.5,
+    })
+    this.woosh1Sound = this.sound.add('woosh1Sound', { volume: 0.5 })
+    this.woosh2Sound = this.sound.add('woosh2Sound', { volume: 0.5 })
+    this.productDrop1Sound = this.sound.add('productDrop1Sound', {
+      volume: 0.3,
+    })
+    this.productDrop2Sound = this.sound.add('productDrop2Sound', {
+      volume: 0.3,
+    })
+    this.productDrop3Sound = this.sound.add('productDrop3Sound', {
+      volume: 0.3,
+    })
   }
 
   create() {
@@ -51,6 +89,19 @@ export default class extends Phaser.Scene {
       money.x = dragX
       money.y = dragY
     })
+    this.input.on('pointerup', (pointer, money, dragX, dragY) => {
+      this.moneyGroup.getChildren().forEach((c) => c.onDrop(false))
+    })
+
+    this.mute = this.add.image(40, 160, 'icon')
+    this.mute.setOrigin(0)
+    this.mute.setFrame(window.isMuted ? 2 : 1)
+    this.mute.setInteractive().on('pointerdown', () => {
+      window.isMuted = !window.isMuted
+      this.sound.mute = window.isMuted
+      localStorage.setItem('mute', window.isMuted ? 1 : 0)
+      this.mute.setFrame(window.isMuted ? 2 : 1)
+    })
 
     const bar = this.add.image(10, 10, 'bar').setOrigin(0).setScale(1, 0.7)
     this.bar2 = this.add
@@ -64,9 +115,11 @@ export default class extends Phaser.Scene {
       repeat: -1,
       callback: () => {
         this.timerValue--
-        this.roundTimer--
+        this.roundTimer > 1 && this.roundTimer--
+        console.log({ roundTimer: this.roundTimer })
         if (this.timerValue <= -1) {
           this.music.stop()
+          this.buzzerSound.play()
           this.scene.start('Menu', { score: this.score })
           return
         }
@@ -83,9 +136,10 @@ export default class extends Phaser.Scene {
       .setShadow(2, 2, '#333333', 2, false, true)
       .setOrigin(0.5)
 
-    this.add
+    this.submitButton = this.add
       .image(this.width - 120, this.height * 0.94, 'submit')
       .setScale(1.8)
+      .setDepth(5)
       .setInteractive()
       .on('pointerdown', this.onSubmit.bind(this))
 
@@ -93,8 +147,14 @@ export default class extends Phaser.Scene {
       .image(120, this.height * 0.94, 'submit')
       .setScale(1.8)
       .setFrame(1)
+      .setDepth(5)
       .setInteractive()
       .on('pointerdown', this.onClipboard.bind(this))
+
+    this.newScoreText = this.add.text(0, 0, '', {
+      ...TEXT_CONFIG,
+      fontSize: 300,
+    })
 
     this.nextCustomer()
     this.clipboard = new ClipboardModal(this)
@@ -107,25 +167,50 @@ export default class extends Phaser.Scene {
     this.behavior.update()
     this.moneyGroup.getChildren().forEach((c) => c.update())
     // this.totalText.text = this.moneyGroup.getPresented().value / 100
+
+    if (this.newScoreText.active) {
+      this.newScoreText.y -= 1
+      this.newScoreText.alpha -= 0.01
+      if (this.newScoreText.alpha <= 0) this.newScoreText.setActive(false)
+    }
   }
 
   onSubmit() {
+    if (!this.canSubmit) {
+      return
+    }
     const presented = this.moneyGroup.getPresented()
     const customerMoney = this.moneyGroup.getCustomer()
-
+    this.canSubmit = false
+    this.submitButton.alpha = 0.5
     // TODO: add sad sound for each customre and show sad frame for a few seconds when wrong
     // Add some particles and screenshake
 
     if (presented.value === customerMoney.value - this.targetValue) {
       // TODO: make score more interesting
-      this.score += this.roundTimer
+      this.registerSound.play()
+      const levelModifier = (this.level + 1) / 2
+      const baseScore = Math.min(this.roundTimer, 30) * 10
+      const newScore = baseScore * levelModifier
+      console.log(this.roundTimer, baseScore, levelModifier, newScore)
+      this.score += newScore
       this.scoreText.text = this.score
 
-      this.timerValue += Math.min(Math.floor(this.roundTimer / 4), 10)
+      this.newScoreText
+        .setPosition(this.width / 2, this.height / 2)
+        .setActive(true)
+        .setAlpha(1)
+        .setText(`+${newScore}`)
+        .setDepth(5)
+        .setOrigin(0.5)
+
+      this.timerValue += Math.floor(this.roundTimer)
       this.timerValue = Math.min(TIMER_MAX, this.timerValue)
       this.bar2.scaleX = this.timerValue / TIMER_MAX
+      this.successSound.play()
 
       this.customer.setFrame(this.customer.frameIndex + 1)
+      this.customer.vocalize('happy')
 
       // TODO: add nice sound for each customre and show happy frame for a few seconds
       // Add some particles and screenshake
@@ -142,13 +227,17 @@ export default class extends Phaser.Scene {
         onComplete: this.nextCustomer.bind(this),
       })
     } else {
-      this.timerValue -= 10
+      this.timerValue -= 2
+      this.customer.vocalize('sad')
+      this.whoopsSound.play()
       this.customer.setFrame(this.customer.frameIndex + 2)
       this.cameras.main.shake(450, 0.01)
       this.time.addEvent({
         delay: 2500,
         callback: () => {
           this.customer.setFrame(this.customer.frameIndex)
+          this.canSubmit = true
+          this.submitButton.alpha = 1
         },
       })
       this.bar2.scaleX = this.timerValue / TIMER_MAX
@@ -160,6 +249,7 @@ export default class extends Phaser.Scene {
       return
     }
     this.clipboardIsUp = true
+    this.woosh1Sound.play()
     this.tweens.add({
       targets: [this.clipboard],
       y: 200,
@@ -173,6 +263,7 @@ export default class extends Phaser.Scene {
   }
 
   onClipboardUp() {
+    this.woosh2Sound.play()
     this.clipboardIsUp = false
     this.tweens.add({
       targets: [this.clipboard],
@@ -190,8 +281,8 @@ export default class extends Phaser.Scene {
       s.makeDraggable()
       this.tweens.add({
         targets: [s],
-        angle: Phaser.Math.RND.between(-30, 30),
-        x: this.width / 2,
+        angle: Phaser.Math.RND.between(-90, 90),
+        x: Phaser.Math.RND.between(50, this.width - 50),
         y: this.height * 0.77,
         duration: 700 * DURATION_FACTOR,
         delay: 100 * DURATION_FACTOR,
@@ -208,6 +299,7 @@ export default class extends Phaser.Scene {
 
   nextCustomer() {
     const difficulty = LEVELS[this.level]
+
     this.productGroup.createProducts(
       Phaser.Math.RND.between(difficulty.minProducts, difficulty.maxProducts),
       difficulty.productIndexes,
@@ -219,17 +311,20 @@ export default class extends Phaser.Scene {
       this.level++
     }
     this.targetValue = this.productGroup.getTotalValue()
+    console.log({ target: this.targetValue })
   }
 
   createCustomer() {
     this.customer && this.customer.destroy()
     this.customer = new Customer(this, 500, 400, Phaser.Math.RND.between(0, 3))
+    this.customer.vocalize('neutral')
+
     this.add.existing(this.customer)
   }
 
   presentCustomerMoney() {
     let remaining = this.productGroup.getTotalValue()
-    this.roundTimer = 200
+    this.roundTimer = 35 + 5 * this.level
     let i = 0
     while (remaining > 0) {
       i++
@@ -242,7 +337,11 @@ export default class extends Phaser.Scene {
         angle: 1,
         index: i,
         draggable: false,
-        delay: 1500 * DURATION_FACTOR,
+        onComplete: () => {
+          this.canSubmit = true
+          this.submitButton.alpha = 1
+        },
+        delay: 1000 * DURATION_FACTOR,
       })
       this.customer && money.value >= 100 && money.setTint(0x99aa99)
     }
