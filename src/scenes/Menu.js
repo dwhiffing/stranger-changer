@@ -52,7 +52,7 @@ export default class extends Phaser.Scene {
     this.woosh2Sound = this.sound.add('woosh2Sound', { volume: 0.5 })
     this.music.play()
 
-    this.mute = this.add.image(this.width - 130, this.height - 130, 'icon')
+    this.mute = this.add.image(this.width - 130, this.height - 180, 'icon')
     this.mute.setOrigin(0)
     this.mute.setFrame(window.isMuted ? 2 : 1)
     this.mute.setInteractive().on('pointerdown', () => {
@@ -88,7 +88,7 @@ export default class extends Phaser.Scene {
   create() {
     this.scrollCustomer()
     this.add
-      .image(120, this.height * 0.94, 'submit')
+      .image(120, this.height * 0.92, 'submit')
       .setScale(1.8)
       .setFrame(1)
       .setInteractive()

@@ -6,7 +6,7 @@ import Money, { VALUES } from '../gameObjects/Money'
 import ClipboardModal from '../gameObjects/Clipboard'
 
 const TIMER_MAX = 120
-const PROGRESSION = [3, 7, 12, 18, 25, 33, 42, 52]
+const PROGRESSION = [3, 7, 10, 15, 20, 25, 30, 35]
 const LEVELS = [
   { minProducts: 1, maxProducts: 2, productIndexes: [0, 1] },
   { minProducts: 2, maxProducts: 4, productIndexes: [0, 1] },
@@ -116,7 +116,6 @@ export default class extends Phaser.Scene {
       callback: () => {
         this.timerValue--
         this.roundTimer > 1 && this.roundTimer--
-        console.log({ roundTimer: this.roundTimer })
         if (this.timerValue <= -1) {
           this.music.stop()
           this.buzzerSound.play()
@@ -128,7 +127,7 @@ export default class extends Phaser.Scene {
     })
 
     this.scoreText = this.add
-      .text(this.width / 2, this.height - 120, 0, {
+      .text(this.width / 2, this.height - 135, 0, {
         ...TEXT_CONFIG,
         fontSize: 120,
         align: 'center',
@@ -137,14 +136,14 @@ export default class extends Phaser.Scene {
       .setOrigin(0.5)
 
     this.submitButton = this.add
-      .image(this.width - 120, this.height * 0.94, 'submit')
+      .image(this.width - 120, this.height * 0.92, 'submit')
       .setScale(1.8)
       .setDepth(5)
       .setInteractive()
       .on('pointerdown', this.onSubmit.bind(this))
 
     this.add
-      .image(120, this.height * 0.94, 'submit')
+      .image(120, this.height * 0.92, 'submit')
       .setScale(1.8)
       .setFrame(1)
       .setDepth(5)
@@ -192,7 +191,6 @@ export default class extends Phaser.Scene {
       const levelModifier = (this.level + 1) / 2
       const baseScore = Math.min(this.roundTimer, 30) * 10
       const newScore = baseScore * levelModifier
-      console.log(this.roundTimer, baseScore, levelModifier, newScore)
       this.score += newScore
       this.scoreText.text = this.score
 
@@ -204,7 +202,7 @@ export default class extends Phaser.Scene {
         .setDepth(5)
         .setOrigin(0.5)
 
-      this.timerValue += Math.floor(this.roundTimer)
+      this.timerValue += Math.floor(this.roundTimer / 3)
       this.timerValue = Math.min(TIMER_MAX, this.timerValue)
       this.bar2.scaleX = this.timerValue / TIMER_MAX
       this.successSound.play()
@@ -311,7 +309,6 @@ export default class extends Phaser.Scene {
       this.level++
     }
     this.targetValue = this.productGroup.getTotalValue()
-    console.log({ target: this.targetValue })
   }
 
   createCustomer() {
