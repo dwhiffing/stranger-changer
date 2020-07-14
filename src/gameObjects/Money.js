@@ -1,5 +1,5 @@
 import { DRAGGABLE } from '../behaviors/draggable'
-import { DURATION_FACTOR } from '..'
+import {} from '..'
 const defaultProps = {
   x: 200,
   y: 200,
@@ -57,8 +57,8 @@ class Money extends Phaser.Physics.Arcade.Sprite {
         x: x + props.index * 20,
         y: y + Math.random() * 5 + props.index * 50,
         angle: Phaser.Math.RND.between(-props.angle, props.angle),
-        duration: 500 * DURATION_FACTOR,
-        delay: props.delay + props.index * 500 * DURATION_FACTOR,
+        duration: 500,
+        delay: props.delay + props.index * 500,
         ease: 'Power2',
         onComplete: () => {
           props.onComplete && props.onComplete()
@@ -135,7 +135,7 @@ class Money extends Phaser.Physics.Arcade.Sprite {
 
     this.scene &&
       this.scene.time.addEvent({
-        delay: 500 * DURATION_FACTOR,
+        delay: 500,
         callback: () => {
           this.wasClicked = false
         },
@@ -177,9 +177,9 @@ class Money extends Phaser.Physics.Arcade.Sprite {
     this.scene.tweens.add({
       targets: [this],
       x: this.scene.width + 300,
-      duration: 400 * DURATION_FACTOR,
+      duration: 400,
       ease: 'Power2',
-      delay: this.index * 100 * DURATION_FACTOR,
+      delay: this.index * 100,
       onComplete: () => {
         super.destroy()
       },

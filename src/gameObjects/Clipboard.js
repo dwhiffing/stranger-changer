@@ -1,4 +1,4 @@
-import { TEXT_CONFIG, DURATION_FACTOR } from '..'
+import { TEXT_CONFIG } from '..'
 import { Product, PRICES } from './Product'
 
 class ClipboardModal extends Phaser.GameObjects.Container {
@@ -31,16 +31,6 @@ class ClipboardModal extends Phaser.GameObjects.Container {
       this.add(text)
     }
 
-    // this.scene.tweens.add({
-    //   targets: [this],
-    //   x: x + Math.random() * 50,
-    //   y: y + Math.random() * 10,
-    //   // angle: Phaser.Math.RND.between(-30, 30),
-    //   duration: 350 * DURATION_FACTOR,
-    //   ease: 'Power2',
-    //   delay: 700 + index * 200 * DURATION_FACTOR,
-    // })
-
     this.text = this.scene.add
       .text(-60, -40, 100, {
         ...TEXT_CONFIG,
@@ -59,9 +49,9 @@ class ClipboardModal extends Phaser.GameObjects.Container {
       targets: [this],
       x: this.scene.width + 300,
       angle: Phaser.Math.RND.between(-30, 30),
-      duration: 1000 * DURATION_FACTOR,
+      duration: 1000,
       ease: 'Power2',
-      delay: this.index * 100 * DURATION_FACTOR,
+      delay: this.index * 100,
       onComplete: () => {
         super.destroy()
       },

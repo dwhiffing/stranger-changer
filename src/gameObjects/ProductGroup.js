@@ -1,6 +1,4 @@
 import Product from './Product'
-import Money, { VALUES } from './Money'
-import { DURATION_FACTOR } from '..'
 export class ProductGroup extends Phaser.Physics.Arcade.Group {
   constructor(scene) {
     super(scene.physics.world, scene)

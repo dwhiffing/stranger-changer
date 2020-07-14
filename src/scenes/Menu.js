@@ -1,4 +1,4 @@
-import { TEXT_CONFIG, DURATION_FACTOR } from '..'
+import { TEXT_CONFIG } from '..'
 import ClipboardModal from '../gameObjects/Clipboard'
 import Customer from '../gameObjects/Customer'
 
@@ -124,8 +124,8 @@ export default class extends Phaser.Scene {
     this.tweens.add({
       targets: [this.clipboard],
       y: 200,
-      duration: 400 * DURATION_FACTOR,
-      delay: 100 * DURATION_FACTOR,
+      duration: 400,
+      delay: 100,
       ease: 'Power2',
       onComplete: () => {
         this.input.once('pointerdown', this.onClipboardUp.bind(this))
@@ -139,8 +139,8 @@ export default class extends Phaser.Scene {
     this.tweens.add({
       targets: [this.clipboard],
       y: this.height,
-      duration: 800 * DURATION_FACTOR,
-      delay: 100 * DURATION_FACTOR,
+      duration: 800,
+      delay: 100,
       ease: 'Power2',
     })
   }

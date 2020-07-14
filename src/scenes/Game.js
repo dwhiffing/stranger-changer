@@ -1,11 +1,9 @@
-import { TEXT_CONFIG, DURATION_FACTOR } from '..'
 import { MoneyGroup } from '../gameObjects/MoneyGroup'
 import { ProductGroup } from '../gameObjects/ProductGroup'
 import Customer from '../gameObjects/Customer'
 import Money, { VALUES } from '../gameObjects/Money'
-import ClipboardModal from '../gameObjects/Clipboard'
+import { UiGroup } from '../gameObjects/uiGroup'
 
-const TIMER_MAX = 120
 const PROGRESSION = [3, 7, 10, 15, 20, 25, 30, 35]
 const LEVELS = [
   { minProducts: 1, maxProducts: 2, productIndexes: [0, 1] },
@@ -26,13 +24,8 @@ export default class extends Phaser.Scene {
   init() {
     this.width = this.cameras.main.width
     this.height = this.cameras.main.height
-    this.moneyGroup = new MoneyGroup(this)
-    this.productGroup = new ProductGroup(this)
-    this.score = 0
-    this.level = 0
-    this.numCustomers = 0
+    this.behavior = this.plugins.get('BehaviorPlugin')
     this.music = this.sound.add('gameMusic', { loop: true, volume: 0.35 })
-    this.music.play()
     this.registerSound = this.sound.add('registerSound', {
       volume: 0.5,
     })
@@ -61,8 +54,6 @@ export default class extends Phaser.Scene {
     this.coinBreakdownSound = this.sound.add('coinBreakdownSound', {
       volume: 0.5,
     })
-    this.woosh1Sound = this.sound.add('woosh1Sound', { volume: 0.5 })
-    this.woosh2Sound = this.sound.add('woosh2Sound', { volume: 0.5 })
     this.productDrop1Sound = this.sound.add('productDrop1Sound', {
       volume: 0.3,
     })
@@ -75,16 +66,16 @@ export default class extends Phaser.Scene {
   }
 
   create() {
-    this.behavior = this.plugins.get('BehaviorPlugin')
+    this.score = 0
+    this.level = 0
+    this.numCustomers = 0
 
-    const background = this.add.image(0, 0, 'background')
-    background.setOrigin(0)
-    background.setDepth(-3)
-    const table = this.add.image(0, 0, 'table')
-    table.setOrigin(0)
-    table.setDepth(-1)
-
+    this.moneyGroup = new MoneyGroup(this)
     this.moneyGroup.createMoney()
+    this.productGroup = new ProductGroup(this)
+    this.uiGroup = new UiGroup(this)
+
+    this.music.play()
     this.input.on('drag', (pointer, money, dragX, dragY) => {
       money.x = dragX
       money.y = dragY
@@ -93,70 +84,7 @@ export default class extends Phaser.Scene {
       this.moneyGroup.getChildren().forEach((c) => c.onDrop(false))
     })
 
-    this.mute = this.add.image(40, 160, 'icon')
-    this.mute.setOrigin(0)
-    this.mute.setFrame(window.isMuted ? 2 : 1)
-    this.mute.setInteractive().on('pointerdown', () => {
-      window.isMuted = !window.isMuted
-      this.sound.mute = window.isMuted
-      localStorage.setItem('mute', window.isMuted ? 1 : 0)
-      this.mute.setFrame(window.isMuted ? 2 : 1)
-    })
-
-    const bar = this.add.image(10, 10, 'bar').setOrigin(0).setScale(1, 0.7)
-    this.bar2 = this.add
-      .image(10, 10, 'bar-2')
-      .setOrigin(0)
-      .setScale(1, 0.7)
-      .setTint(0x88dd88)
-    this.timerValue = TIMER_MAX
-    this.time.addEvent({
-      delay: 1000,
-      repeat: -1,
-      callback: () => {
-        this.timerValue--
-        this.roundTimer > 1 && this.roundTimer--
-        if (this.timerValue <= -1) {
-          this.music.stop()
-          this.buzzerSound.play()
-          this.scene.start('Menu', { score: this.score })
-          return
-        }
-        this.bar2.scaleX = this.timerValue / TIMER_MAX
-      },
-    })
-
-    this.scoreText = this.add
-      .text(this.width / 2, this.height - 135, 0, {
-        ...TEXT_CONFIG,
-        fontSize: 120,
-        align: 'center',
-      })
-      .setShadow(2, 2, '#333333', 2, false, true)
-      .setOrigin(0.5)
-
-    this.submitButton = this.add
-      .image(this.width - 120, this.height * 0.92, 'submit')
-      .setScale(1.8)
-      .setDepth(5)
-      .setInteractive()
-      .on('pointerdown', this.onSubmit.bind(this))
-
-    this.add
-      .image(120, this.height * 0.92, 'submit')
-      .setScale(1.8)
-      .setFrame(1)
-      .setDepth(5)
-      .setInteractive()
-      .on('pointerdown', this.onClipboard.bind(this))
-
-    this.newScoreText = this.add.text(0, 0, '', {
-      ...TEXT_CONFIG,
-      fontSize: 300,
-    })
-
-    this.nextCustomer()
-    this.clipboard = new ClipboardModal(this)
+    this.doNextCustomer()
   }
 
   start() {}
@@ -165,137 +93,83 @@ export default class extends Phaser.Scene {
     this.behavior.preUpdate()
     this.behavior.update()
     this.moneyGroup.getChildren().forEach((c) => c.update())
-    // this.totalText.text = this.moneyGroup.getPresented().value / 100
-
-    if (this.newScoreText.active) {
-      this.newScoreText.y -= 1
-      this.newScoreText.alpha -= 0.01
-      if (this.newScoreText.alpha <= 0) this.newScoreText.setActive(false)
-    }
+    this.uiGroup.update()
   }
 
   onSubmit() {
-    if (!this.canSubmit) {
-      return
-    }
-    const presented = this.moneyGroup.getPresented()
-    const customerMoney = this.moneyGroup.getCustomer()
+    if (!this.canSubmit) return
     this.canSubmit = false
     this.submitButton.alpha = 0.5
-    // TODO: add sad sound for each customre and show sad frame for a few seconds when wrong
-    // Add some particles and screenshake
 
-    if (presented.value === customerMoney.value - this.targetValue) {
-      // TODO: make score more interesting
-      this.registerSound.play()
-      const levelModifier = (this.level + 1) / 2
-      const baseScore = Math.min(this.roundTimer, 30) * 10
-      const newScore = baseScore * levelModifier
-      this.score += newScore
-      this.scoreText.text = this.score
+    // TODO: move below into moneyGroup function getIsPlayerCorrect.etc
+    // get value of currency presented by player
+    const presented = this.moneyGroup.getPresented()
+    // get cost of customer items
+    const customerMoney = this.moneyGroup.getCustomer()
+    const isSuccessful =
+      presented.value === customerMoney.value - this.targetValue
 
-      this.newScoreText
-        .setPosition(this.width / 2, this.height / 2)
-        .setActive(true)
-        .setAlpha(1)
-        .setText(`+${newScore}`)
-        .setDepth(5)
-        .setOrigin(0.5)
+    if (isSuccessful) {
+      this.uiGroup.onSuccess()
 
-      this.timerValue += Math.floor(this.roundTimer / 3)
-      this.timerValue = Math.min(TIMER_MAX, this.timerValue)
-      this.bar2.scaleX = this.timerValue / TIMER_MAX
-      this.successSound.play()
-
+      // TODO: move to customer function happy
       this.customer.setFrame(this.customer.frameIndex + 1)
       this.customer.vocalize('happy')
 
-      // TODO: add nice sound for each customre and show happy frame for a few seconds
-      // Add some particles and screenshake
       this.time.addEvent({
-        delay: 500 * DURATION_FACTOR,
+        delay: 500,
         callback: this.cleanup.bind(this),
       })
-      this.tweens.add({
-        targets: [this.customer],
-        x: this.width + 600,
-        duration: 700 * DURATION_FACTOR,
-        delay: 500 * DURATION_FACTOR,
-        ease: 'Power2',
-        onComplete: this.nextCustomer.bind(this),
-      })
+      this.nextCustomer()
     } else {
-      this.timerValue -= 2
+      this.uiGroup.onFailure()
+
+      // TODO: move to customer function sad
       this.customer.vocalize('sad')
-      this.whoopsSound.play()
       this.customer.setFrame(this.customer.frameIndex + 2)
-      this.cameras.main.shake(450, 0.01)
       this.time.addEvent({
         delay: 2500,
         callback: () => {
           this.customer.setFrame(this.customer.frameIndex)
-          this.canSubmit = true
-          this.submitButton.alpha = 1
         },
       })
-      this.bar2.scaleX = this.timerValue / TIMER_MAX
     }
-  }
-
-  onClipboard() {
-    if (this.clipboardIsUp) {
-      return
-    }
-    this.clipboardIsUp = true
-    this.woosh1Sound.play()
-    this.tweens.add({
-      targets: [this.clipboard],
-      y: 200,
-      duration: 400 * DURATION_FACTOR,
-      delay: 100 * DURATION_FACTOR,
-      ease: 'Power2',
-      onComplete: () => {
-        this.input.once('pointerdown', this.onClipboardUp.bind(this))
-      },
-    })
-  }
-
-  onClipboardUp() {
-    this.woosh2Sound.play()
-    this.clipboardIsUp = false
-    this.tweens.add({
-      targets: [this.clipboard],
-      y: this.height,
-      duration: 800 * DURATION_FACTOR,
-      delay: 100 * DURATION_FACTOR,
-      ease: 'Power2',
-    })
   }
 
   cleanup() {
-    const presented = this.moneyGroup.getPresented()
-    const customerMoney = this.moneyGroup.getCustomer()
-    customerMoney.sprites.forEach((s) => {
+    // remove presented player currency and customer productss
+    this.moneyGroup.getPresented().sprites.forEach((p) => p.destroy())
+    this.productGroup.getChildren().forEach((p) => p.destroy())
+
+    // give customer money to player
+    this.moneyGroup.getCustomer().sprites.forEach((s) => {
       s.makeDraggable()
       this.tweens.add({
         targets: [s],
         angle: Phaser.Math.RND.between(-90, 90),
         x: Phaser.Math.RND.between(50, this.width - 50),
         y: this.height * 0.77,
-        duration: 700 * DURATION_FACTOR,
-        delay: 100 * DURATION_FACTOR,
+        duration: 700,
+        delay: 100,
         ease: 'Power2',
       })
-    })
-    presented.sprites.forEach((p) => p.destroy())
-    const products = [...this.productGroup.getChildren()]
-    products.forEach((p) => {
-      p.destroy()
-      p.value = 0
     })
   }
 
   nextCustomer() {
+    if (this.customer) {
+      this.tweens.add({
+        targets: [this.customer],
+        x: this.width + 600,
+        duration: 700,
+        delay: 500,
+        ease: 'Power2',
+        onComplete: this.doNextCustomer.bind(this),
+      })
+    }
+  }
+
+  doNextCustomer() {
     const difficulty = LEVELS[this.level]
 
     this.productGroup.createProducts(
@@ -338,7 +212,7 @@ export default class extends Phaser.Scene {
           this.canSubmit = true
           this.submitButton.alpha = 1
         },
-        delay: 1000 * DURATION_FACTOR,
+        delay: 1000,
       })
       this.customer && money.value >= 100 && money.setTint(0x99aa99)
     }
