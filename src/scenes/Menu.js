@@ -65,7 +65,13 @@ export default class extends Phaser.Scene {
 
   scrollCustomer() {
     this.customer && this.customer.destroy()
-    this.customer = new Customer(this, -500, 400, Phaser.Math.RND.between(0, 3))
+    this.customer = new Customer(
+      this,
+      -500,
+      400,
+      Phaser.Math.RND.between(0, 3),
+      false,
+    )
     this.add.existing(this.customer)
 
     this.tweens.add({

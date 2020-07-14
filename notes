@@ -1,4 +1,23 @@
-add sounds for each customer happy/sad
+stranger changer level notes
+  small ints: 1-5
+  medium ints: 6-12
+  level 1: small ints, 2 customers
+  level 2: .5 + small ints, 3 customers
+  
+  level 3: small & medium ints, 2 customers
+  level 4: .5 + small & medium ints, 3 customers
+  
+  level 5: .25 + small ints, 2 customers
+  level 6: .25 & .5 + small & medium ints, 3 customers
+  
+  level 7: small & large ints, 2 customers
+  level 8: .5 & .25 + small, medium & large ints, 3 customers
+  
+  level 9: .10, .05 & .25 + small ints, 2 customers
+  level 10: .10, .05 & .25 + small, medium & large ints, 3 customers
+
+  onwards: .1, .10, .05 & .25 + small, medium & large ints
+
 
 add particles on score/fail
 improve progression

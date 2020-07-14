@@ -29,4 +29,8 @@ export class ProductGroup extends Phaser.Physics.Arcade.Group {
       0,
     )
   }
+
+  destroyPresentedProducts() {
+    this.getChildren().forEach((p) => p.destroy())
+  }
 }

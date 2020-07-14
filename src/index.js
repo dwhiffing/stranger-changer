@@ -33,3 +33,15 @@ export const TEXT_CONFIG = {
   align: 'center',
   color: '#ffffff',
 }
+
+export const PROGRESSION = [3, 7, 10, 15, 20, 25, 30, 35]
+export const LEVELS = [
+  { minProducts: 1, maxProducts: 2, productIndexes: [0, 1] },
+  { minProducts: 2, maxProducts: 4, productIndexes: [0, 1] },
+  { minProducts: 3, maxProducts: 5, productIndexes: [0, 1, 2] },
+  { minProducts: 3, maxProducts: 5, productIndexes: [0, 1, 2, 3] },
+  { minProducts: 3, maxProducts: 6, productIndexes: [0, 1, 2, 3, 4] },
+  { minProducts: 3, maxProducts: 7, productIndexes: [1, 2, 3, 4, 5] },
+  { minProducts: 3, maxProducts: 8, productIndexes: [2, 3, 4, 5, 6] },
+  { minProducts: 4, maxProducts: 8, productIndexes: [3, 4, 5, 6, 7] },
+]
